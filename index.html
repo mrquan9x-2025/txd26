@@ -31,7 +31,14 @@
     <div id="view-login" class="h-screen flex justify-center items-center bg-blue-100">
         <div class="bg-white p-8 rounded-xl shadow-lg w-96 text-center">
             <h2 class="text-2xl font-bold text-blue-700 mb-6"><i class="fas fa-graduation-cap"></i> Hệ Thống Quản Lý</h2>
-            <input type="password" id="login-pin" placeholder="Nhập mã PIN giáo viên" class="w-full p-3 border rounded-lg mb-4 text-center text-xl tracking-widest focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="password" id="login-pin" placeholder="Nhập mã PIN giáo viên" class="w-full p-3 border rounded-lg mb-3 text-center text-xl tracking-widest focus:ring-2 focus:ring-blue-500 outline-none">
+            
+            <!-- CHECKBOX LƯU MÃ PIN -->
+            <div class="flex items-center justify-start mb-6 px-1">
+                <input type="checkbox" id="remember-pin" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                <label for="remember-pin" class="ml-2 text-sm text-gray-600 select-none cursor-pointer">Lưu mã PIN cho lần sau</label>
+            </div>
+
             <button onclick="app.login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
                 Truy cập <i class="fas fa-arrow-right ml-2"></i>
             </button>
@@ -143,7 +150,7 @@
                 <!-- ============================================== -->
                 <div id="view-m3" class="view-section hidden">
                     <div class="flex items-center justify-between mb-6 border-b pb-4 border-gray-200">
-                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2"><i class="fas fa-hand-holding-dollar text-purple-600"></i> Theo dõi Đóng Học Phí</h2>
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2"><i class="fas fa-hand-holding-dollar text-purple-600"></i> Học Phí</h2>
                         <div class="flex gap-2 items-center border-2 border-purple-800 p-1 rounded">
                             <span class="px-2 font-bold text-purple-800">Tháng:</span>
                             <input type="month" id="m3-month" class="p-1 outline-none font-bold text-gray-700" onchange="app.renderM3()">
@@ -154,17 +161,17 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg shadow-sm relative overflow-hidden">
                             <p class="text-sm text-blue-600 font-bold uppercase">Cần thu trong tháng</p>
-                            <p class="text-3xl font-bold mt-1 text-blue-800" id="m3-tongthu">0đ</p>
+                            <p class="text-2xl font-bold mt-1 text-blue-800" id="m3-tongthu">0đ</p>
                             <i class="fas fa-file-invoice-dollar absolute right-4 bottom-4 text-4xl text-blue-200"></i>
                         </div>
                         <div class="bg-green-50 border border-green-200 p-4 rounded-lg shadow-sm relative overflow-hidden">
                             <p class="text-sm text-green-600 font-bold uppercase">Đã thu</p>
-                            <p class="text-3xl font-bold mt-1 text-green-800" id="m3-dathu">0đ</p>
+                            <p class="text-2xl font-bold mt-1 text-green-800" id="m3-dathu">0đ</p>
                             <i class="fas fa-check-circle absolute right-4 bottom-4 text-4xl text-green-200"></i>
                         </div>
                         <div class="bg-red-50 border border-red-200 p-4 rounded-lg shadow-sm relative overflow-hidden">
                             <p class="text-sm text-red-600 font-bold uppercase">Còn thiếu</p>
-                            <p class="text-3xl font-bold mt-1 text-red-600" id="m3-conthieu">0đ</p>
+                            <p class="text-2xl font-bold mt-1 text-red-600" id="m3-conthieu">0đ</p>
                             <i class="fas fa-exclamation-triangle absolute right-4 bottom-4 text-4xl text-red-200"></i>
                         </div>
                     </div>
@@ -186,7 +193,7 @@
                                     <th class="p-3 text-center">Số buổi (x Ca)</th>
                                     <th class="p-3 text-right">Tiền học phí</th>
                                     <th class="p-3 text-center">Trạng thái</th>
-                                    <th class="p-3 text-center">Hành động</th>
+                                    <th class="p-3 text-center">Xác nhận</th>
                                 </tr>
                             </thead>
                             <tbody id="m3-tbody" class="divide-y divide-gray-200">
@@ -196,22 +203,22 @@
                 </div>
 
                 <!-- ============================================== -->
-                <!-- M4: BÁO CÁO -->
+                <!-- M4: BÁO CÁO (QUY TRÌNH DUYỆT - GỬI) -->
                 <!-- ============================================== -->
                 <div id="view-m4" class="view-section hidden">
-                    <div class="flex gap-2 mb-6 border-2 border-purple-800 p-1 rounded inline-flex">
+                    <div class="flex gap-2 mb-6 border-2 border-teal-800 p-1 rounded inline-flex">
                         <select id="m4-class" class="p-1 outline-none font-bold text-gray-700 bg-transparent border-r-2 border-gray-300" onchange="app.renderM4Students()">
                             <option value="">-- Chọn Lớp --</option>
                         </select>
-                        <span class="px-2 font-bold text-purple-800 flex items-center">Tháng:</span>
+                        <span class="px-2 font-bold text-teal-800 flex items-center">Tháng:</span>
                         <input type="month" id="m4-month" class="p-1 outline-none font-bold text-gray-700 bg-transparent" onchange="app.renderM4Students()">
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Cột danh sách học sinh -->
+                        <!-- Cột danh sách học sinh có nhãn Trạng thái -->
                         <div class="border rounded shadow-sm bg-white overflow-hidden">
-                            <h3 class="bg-gray-100 p-3 font-bold text-gray-700 border-b">DANH SÁCH HỌC SINH</h3>
-                            <ul id="m4-student-list" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+                            <h3 class="bg-gray-100 p-3 font-bold text-gray-700 border-b text-sm">DANH SÁCH DUYỆT BÁO CÁO</h3>
+                            <ul id="m4-student-list" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto text-xs">
                                 <li class="p-4 text-gray-400 text-sm italic">Vui lòng chọn Lớp và Tháng</li>
                             </ul>
                         </div>
@@ -219,11 +226,11 @@
                         <!-- Cột hiển thị báo cáo chi tiết -->
                         <div class="lg:col-span-2 border rounded shadow-sm bg-white p-6 hidden" id="m4-report-panel">
                             <div class="flex justify-between items-center mb-4 pb-2 border-b">
-                                <h3 class="text-xl font-bold text-teal-700">Báo cáo học tập: <span id="m4-hs-name"></span></h3>
+                                <h3 class="text-lg font-bold text-teal-700">Báo cáo của: <span id="m4-hs-name"></span></h3>
+                                <span id="m4-badge-status" class="px-3 py-1 rounded-full text-xs font-bold"></span>
                             </div>
                             
-                            <!-- Bảng thông số ngắn gọn -->
-                            <div class="bg-teal-50 border border-teal-100 rounded p-4 grid grid-cols-2 gap-4 mb-4 text-sm">
+                            <div class="bg-teal-50 border border-teal-100 rounded p-4 grid grid-cols-2 gap-4 mb-4 text-xs">
                                 <div>
                                     <p>Số buổi học: <strong id="m4-ssobuoi" class="text-teal-800">0</strong> buổi</p>
                                     <p>Bài tập hoàn thành: <strong id="m4-sbtvn" class="text-teal-800">0</strong> buổi</p>
@@ -234,30 +241,40 @@
                                 </div>
                             </div>
 
-                            <!-- Nhập nhận xét -->
+							<!-- THÊM MỚI: Khung hiển thị Nhật ký ghi chú hàng ngày -->
+                            <div class="bg-yellow-50 border border-yellow-100 rounded p-4 mb-4 text-xs" id="m4-ghichu-box">
+                                <p class="font-bold text-yellow-800 mb-2"><i class="fas fa-sticky-note"></i> Nhật ký ghi chú trong tháng:</p>
+                                <ul id="m4-sghichu-list" class="list-disc pl-4 text-gray-700 space-y-1">
+                                    <!-- Nhật ký ghi chú từng buổi sẽ tự động hiển thị ở đây -->
+                                </ul>
+                            </div>
+
                             <div class="mb-4">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Nhận xét của giáo viên trong tháng</label>
-                                <textarea id="m4-nhanxet" class="w-full border rounded p-3 text-sm focus:ring-2 focus:ring-teal-500 outline-none" rows="2" placeholder="Nhập thêm đánh giá..."></textarea>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">Nhận xét của giáo viên trong tháng (Thầy cô viết tại đây)</label>
+                                <textarea id="m4-nhanxet" oninput="app.generateMsg()" class="w-full border rounded p-3 text-xs focus:ring-2 focus:ring-teal-500 outline-none" rows="2" placeholder="Nhập thêm đánh giá..."></textarea>
                                 
                                 <div class="mt-2 flex flex-wrap gap-2">
-                                    <span class="text-xs text-gray-500 font-bold uppercase mt-1">Mẫu nhanh:</span>
-                                    <button onclick="app.addNote('Học tốt, hăng hái')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-xs rounded border text-gray-700">Học tốt, hăng hái</button>
-                                    <button onclick="app.addNote('Làm bài đầy đủ')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-xs rounded border text-gray-700">Làm bài đầy đủ</button>
-                                    <button onclick="app.addNote('Chưa tập trung')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-xs rounded border text-gray-700">Chưa tập trung</button>
-                                    <button onclick="app.addNote('Chưa làm bài tập')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-xs rounded border text-gray-700">Chưa làm bài tập</button>
-                                    <button onclick="document.getElementById('m4-nhanxet').value=''" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-xs rounded border border-red-200"><i class="fas fa-trash"></i> Xóa</button>
+                                    <span class="text-[10px] text-gray-500 font-bold uppercase mt-1">Mẫu nhanh:</span>
+                                    <button onclick="app.addNote('Học tốt, hăng hái')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-[10px] rounded border text-gray-700">Học tốt, hăng hái</button>
+                                    <button onclick="app.addNote('Làm bài đầy đủ')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-[10px] rounded border text-gray-700">Làm bài đầy đủ</button>
+                                    <button onclick="app.addNote('Chưa tập trung')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-[10px] rounded border text-gray-700">Chưa tập trung</button>
+                                    <button onclick="document.getElementById('m4-nhanxet').value=''" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] rounded border border-red-200"><i class="fas fa-trash"></i> Xóa</button>
                                 </div>
                             </div>
 
-                            <!-- Kết quả tin nhắn -->
                             <div class="mb-4">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Nội dung tin nhắn gửi đi (Xem trước & Chỉnh sửa)</label>
-                                <textarea id="m4-final-msg" class="w-full border border-gray-300 rounded p-3 text-sm font-mono bg-gray-50 focus:bg-white" rows="10"></textarea>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">Nội dung tin nhắn gửi đi (Xem trước & Chỉnh sửa)</label>
+                                <textarea id="m4-final-msg" class="w-full border border-gray-300 rounded p-3 text-xs font-mono bg-gray-50 focus:bg-white" rows="8"></textarea>
                             </div>
 
-                            <div class="flex justify-end gap-2">
-                                <button onclick="app.generateMsg()" class="px-4 py-2 border rounded hover:bg-gray-50 text-gray-700 font-bold text-sm"><i class="fas fa-sync"></i> Cập nhật lại Text</button>
-                                <button onclick="app.copyMsg()" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-bold shadow text-sm"><i class="fas fa-copy"></i> Sao chép tin nhắn</button>
+                            <div class="flex justify-between items-center border-t pt-4">
+                                <!-- Group nút của Giáo viên -->
+                                <div class="flex gap-2">
+                                    <button onclick="app.saveReportState('Nháp')" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded font-bold text-xs shadow"><i class="fas fa-edit"></i> Lưu Bản Nháp</button>
+                                    <button onclick="app.saveReportState('Đã duyệt')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-bold text-xs shadow"><i class="fas fa-check-double"></i> Duyệt & Lưu</button>
+                                </div>
+                                <!-- Nút sao chép của Trợ giảng -->
+                                <button onclick="app.copyMsg()" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-bold shadow text-xs"><i class="fas fa-copy"></i> Sao chép gửi phụ huynh</button>
                             </div>
                         </div>
                     </div>
@@ -271,7 +288,7 @@
     <script>
         // =========================================
         // THẦY CÔ DÁN LINK WEB APP VÀO ĐÂY:
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbw8JOx3QNx0ZVhgb0-MzE02gOpSeiGQ-kQ3TZiVmO1BPcI__LBvVUFoQcUcji1nD3mq/exec"; 
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzD1KqAoptYFNwCeY3MlVBVwNomKu021eTl5j8WFLc730NCmFwyAjeq0gAfDP-4mTvCpg/exec"; 
         // =========================================
 
         const app = {
@@ -301,6 +318,20 @@
                 return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
             },
             
+			// TỰ ĐỘNG ĐỔI MÀU TÊN VÀ HIỂN THỊ ICON TRỢ GIẢNG PHÙ HỢP
+            getStudentNameStyled: function(hs) {
+                const tg = (hs.TroGiang || '').toUpperCase().trim();
+                if (tg === 'H') {
+                    // Trợ giảng H: Chữ xanh dương + Nhãn H xanh dương
+                    return `<span class="text-blue-600 font-bold flex items-center gap-1">${hs.TenHS} <span class="bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm" title="Trợ giảng H phụ trách">H</span></span>`;
+                } else if (tg === 'Q') {
+                    // Trợ giảng Q: Chữ đen/xám đậm + Nhãn Q đen
+                    return `<span class="text-slate-900 font-extrabold flex items-center gap-1">${hs.TenHS} <span class="bg-slate-800 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm" title="Trợ giảng Q phụ trách">Q</span></span>`;
+                }
+                // Không có trợ giảng phụ trách: Chữ xám thường
+                return `<span class="text-gray-700">${hs.TenHS}</span>`;
+            },
+			
             // Chuyển tab menu
             switchView: function(viewId) {
                 document.querySelectorAll('.nav-item').forEach(el => {
@@ -337,6 +368,14 @@
                         this.data = result.data; 
                         this.toast('success', 'Tải dữ liệu thành công!');
                         
+						// LƯU HOẶC XÓA MÃ PIN TRONG BỘ NHỚ TRÌNH DUYỆT
+                        const remember = document.getElementById('remember-pin').checked;
+                        if (remember) {
+                            localStorage.setItem('savedPin', this.pin);
+                        } else {
+                            localStorage.removeItem('savedPin');
+                        }
+						
                         document.getElementById('view-login').classList.add('hidden');
                         document.getElementById('app-layout').classList.remove('hidden');
                         
@@ -457,8 +496,8 @@
                                 // QUY ƯỚC HIỂN THỊ
                                 let icon = '';
                                 if(stt === "1") icon = `<span class="text-green-600 font-bold">${soca}</span>`; // Có mặt -> xanh
-                                else if(stt === "2") icon = `<span class="text-yellow-600 font-bold">${soca}</span>`; // Muộn -> vàng
-                                else if(stt === "3") icon = `<span class="text-red-600 font-bold">V</span>`; // Vắng KP -> V
+                                else if(stt === "2") icon = `<span class="text-yellow-600 font-bold">${soca}M</span>`; // Muộn -> vàng
+                                else if(stt === "3") icon = `<span class="text-red-600 font-bold">1V</span>`; // Vắng KP -> 1V
                                 else if(stt === "4") icon = `<span class="text-gray-400 font-bold">P</span>`; // Vắng phép -> P
 
                                 dsDiemDanhText += `<td class="p-2 border-r border-gray-100 text-center bg-blue-50">${icon}</td>`;
@@ -470,7 +509,7 @@
 
                         hsRows += `
                             <tr class="hover:bg-gray-50">
-                                <td class="p-2 border-r font-medium text-gray-700">${hs.TenHS}</td>
+                                <td class="p-2 border-r font-medium text-gray-700">${this.getStudentNameStyled(hs)}</td>
                                 <td class="p-2 border-r text-center font-bold">${tongBuoi}</td>
                                 <td class="p-2 border-r text-right text-red-600 font-medium">${this.formatMoney(thanhTien)}</td>
                                 ${dsDiemDanhText}
@@ -605,6 +644,9 @@
                 this.renderM3(); // Gọi lại hàm render để lọc bảng
             },
 
+            // =========================================
+            // M3: HỌC PHÍ (TÍNH TOÁN, THU TIỀN & ĐẾM HỌC SINH)
+            // =========================================
             renderM3: function() {
                 const monthStr = document.getElementById('m3-month').value;
                 if(!monthStr) return;
@@ -614,13 +656,12 @@
                 tbody.innerHTML = '';
 
                 let tongCanThu = 0; let tongDaThu = 0;
+                let demCanThu = 0; let demDaThu = 0; let demConThieu = 0; // Thêm 3 biến đếm học sinh
 
                 this.data.HocSinh.forEach(hs => {
-                    // Lấy các buổi học của em này trong tháng
                     const buoiHocHs = dataThang.filter(d => d.MaHS === hs.MaHS);
                     if(buoiHocHs.length === 0) return;
 
-                    // Tính tổng số ca phải trả tiền (TrangThai = 1,2,3)
                     let soCaTinhTien = 0;
                     buoiHocHs.forEach(b => {
                         if(b.TrangThai !== "4") soCaTinhTien += parseFloat(b.SoCa || 1);
@@ -630,44 +671,48 @@
 
                     const tienHoc = soCaTinhTien * (parseInt(hs.HocPhiBuoi) || 0);
                     tongCanThu += tienHoc;
+                    demCanThu++; // Tăng số học sinh cần thu thêm 1
 
-                    // Kiểm tra xem đã nộp chưa (tra trong bảng ThanhToan)
                     const idThanhToan = `${hs.MaHS}_${monthStr}`;
                     const phieuThu = this.data.ThanhToan.find(t => t.ID_ThanhToan === idThanhToan);
                     const daNop = phieuThu && phieuThu.NgayNop ? true : false;
 
-                    if(daNop) tongDaThu += tienHoc;
+                    if(daNop) {
+                        tongDaThu += tienHoc;
+                        demDaThu++; // Tăng số học sinh đã nộp thêm 1
+                    } else {
+                        demConThieu++; // Tăng số học sinh chưa nộp thêm 1
+                    }
 
-                    // Logic Filter hiển thị bảng
                     if(this.currentM3Filter === 'chuano' && daNop) return;
                     if(this.currentM3Filter === 'danop' && !daNop) return;
 
                     const tenLop = this.data.LopHoc.find(l => l.MaLop === hs.MaLop)?.TenLop || '';
 
                     tbody.innerHTML += `
-                        <tr class="hover:bg-gray-50">
-                            <td class="p-3 font-medium text-gray-800">${hs.TenHS}</td>
-                            <td class="p-3 text-gray-500 text-sm">${tenLop}</td>
+                        <tr class="hover:bg-gray-50 text-xs">
+                            <td class="p-3 font-medium text-gray-800">${this.getStudentNameStyled(hs)}</td>
+                            <td class="p-3 text-gray-500">${tenLop}</td>
                             <td class="p-3 text-center font-bold">${soCaTinhTien}</td>
                             <td class="p-3 text-right text-red-600 font-bold">${this.formatMoney(tienHoc)}</td>
                             <td class="p-3 text-center">
                                 ${daNop 
-                                    ? `<span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold"><i class="fas fa-check"></i> Đã nộp (${this.formatDateDDMM(phieuThu.NgayNop)})</span>` 
-                                    : `<span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-bold"><i class="fas fa-times"></i> Chưa nộp</span>`}
+                                    ? `<span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-[10px] font-bold"><i class="fas fa-check"></i> Đã nộp (${this.formatDateDDMM(phieuThu.NgayNop)})</span>` 
+                                    : `<span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-[10px] font-bold"><i class="fas fa-times"></i> Chưa nộp</span>`}
                             </td>
                             <td class="p-3 text-center">
                                 ${!daNop 
-                                    ? `<button onclick="app.xacNhanThuTien('${hs.MaHS}', '${monthStr}', '${hs.TenHS}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm font-bold shadow"><i class="fas fa-check-double"></i> Xác nhận nộp</button>`
-                                    : `<button onclick="app.xacNhanThuTien('${hs.MaHS}', '${monthStr}', '${hs.TenHS}')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm"><i class="fas fa-edit"></i> Sửa</button>`}
+                                    ? `<button onclick="app.xacNhanThuTien('${hs.MaHS}', '${monthStr}', '${hs.TenHS}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-[10px] font-bold shadow"><i class="fas fa-check-double"></i> Xác nhận nộp</button>`
+                                    : `<button onclick="app.xacNhanThuTien('${hs.MaHS}', '${monthStr}', '${hs.TenHS}')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-[10px]"><i class="fas fa-edit"></i> Sửa</button>`}
                             </td>
                         </tr>
                     `;
                 });
 
-                // Cập nhật 3 thẻ tổng
-                document.getElementById('m3-tongthu').innerText = this.formatMoney(tongCanThu);
-                document.getElementById('m3-dathu').innerText = this.formatMoney(tongDaThu);
-                document.getElementById('m3-conthieu').innerText = this.formatMoney(tongCanThu - tongDaThu);
+                // CẬP NHẬT HIỂN THỊ ĐỒNG THỜI SỐ HỌC SINH VÀ SỐ TIỀN
+                document.getElementById('m3-tongthu').innerText = `${demCanThu}HS: ${this.formatMoney(tongCanThu)}`;
+                document.getElementById('m3-dathu').innerText = `${demDaThu}HS: ${this.formatMoney(tongDaThu)}`;
+                document.getElementById('m3-conthieu').innerText = `${demConThieu}HS: ${this.formatMoney(tongCanThu - tongDaThu)}`;
             },
 
             xacNhanThuTien: function(maHS, thang, tenHS) {
@@ -705,14 +750,14 @@
             },
 
             // =========================================
-            // M4: BÁO CÁO (XUẤT TIN NHẮN)
+            // M4: QUY TRÌNH DUYỆT BÁO CÁO (GIÁO VIÊN & TRỢ GIẢNG)
             // =========================================
             renderM4Students: function() {
                 const maLop = document.getElementById('m4-class').value;
                 const monthStr = document.getElementById('m4-month').value;
                 const ul = document.getElementById('m4-student-list');
                 
-                document.getElementById('m4-report-panel').classList.add('hidden'); // Ẩn panel báo cáo
+                document.getElementById('m4-report-panel').classList.add('hidden'); 
 
                 if(!maLop || !monthStr) {
                     ul.innerHTML = '<li class="p-4 text-gray-400 text-sm italic">Vui lòng chọn Lớp và Tháng</li>'; return;
@@ -722,10 +767,27 @@
                 ul.innerHTML = '';
                 
                 hsLop.forEach(hs => {
+                    // Tìm trạng thái lưu trữ của báo cáo em này
+                    const idBaoCao = `${hs.MaHS}_${monthStr}`;
+                    const bcCu = this.data.BaoCaoThang.find(b => b.ID_BaoCao === idBaoCao);
+                    
+                    let badgeClass = "bg-gray-100 text-gray-500";
+                    let statusText = "🔴 Chưa viết";
+
+                    if(bcCu) {
+                        if(bcCu.TrangThai === "Nháp") {
+                            badgeClass = "bg-yellow-100 text-yellow-700 border border-yellow-300";
+                            statusText = "🟡 Bản nháp";
+                        } else if(bcCu.TrangThai === "Đã duyệt") {
+                            badgeClass = "bg-green-100 text-green-700 border border-green-300";
+                            statusText = "🟢 Đã duyệt";
+                        }
+                    }
+
                     ul.innerHTML += `
                         <li class="p-3 hover:bg-teal-50 cursor-pointer border-b flex justify-between items-center group transition" onclick="app.selectReportHS('${hs.MaHS}', '${hs.TenHS}', '${monthStr}')">
-                            <span class="font-medium text-gray-700 group-hover:text-teal-700">${hs.TenHS}</span>
-                            <i class="fas fa-chevron-right text-gray-300 group-hover:text-teal-500"></i>
+                            <span class="font-medium text-gray-700 group-hover:text-teal-700 text-xs">${this.getStudentNameStyled(hs)}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${statusText}</span>
                         </li>
                     `;
                 });
@@ -734,13 +796,25 @@
             selectReportHS: function(maHS, tenHS, monthStr) {
                 document.getElementById('m4-report-panel').classList.remove('hidden');
                 document.getElementById('m4-hs-name').innerText = tenHS;
-                document.getElementById('m4-nhanxet').value = ''; // Xóa nhận xét cũ
 
-                // Tính toán thông số
-                const buoiHoc = this.data.DiemDanh.filter(d => d.MaHS === maHS && d.NgayHoc.startsWith(monthStr));
+                // Tải dữ liệu báo cáo cũ nếu có
+                const idBaoCao = `${maHS}_${monthStr}`;
+                const bcCu = this.data.BaoCaoThang.find(b => b.ID_BaoCao === idBaoCao) || {};
                 
+                // Điền nhận xét cũ hoặc để trống
+                document.getElementById('m4-nhanxet').value = bcCu.NhanXet || '';
+
+                // Hiển thị Badge trạng thái ở panel chi tiết
+                const badge = document.getElementById('m4-badge-status');
+                badge.innerText = bcCu.TrangThai || "Chưa viết";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold " + 
+                    (bcCu.TrangThai === "Đã duyệt" ? "bg-green-100 text-green-700" : (bcCu.TrangThai === "Nháp" ? "bg-yellow-100 text-yellow-700" : "bg-gray-100 text-gray-500"));
+
+                // Tính toán thông số điểm danh thực tế
+                const buoiHoc = this.data.DiemDanh.filter(d => d.MaHS === maHS && d.NgayHoc.startsWith(monthStr));
                 let sCoMat=0, sMuon=0, sVangKP=0, sVangPhep=0, sBTVN=0;
                 let diemArr = [];
+                let ghiChuHtml = ''; // Thêm biến lưu chuỗi ghi chú buổi học
 
                 buoiHoc.forEach(b => {
                     const stt = b.TrangThai.toString();
@@ -750,36 +824,57 @@
                     if(stt==="4") sVangPhep++;
                     
                     if(b.BTVN_HoanThanh === true || b.BTVN_HoanThanh === "TRUE") sBTVN++;
-                    if(b.DiemBTVN) diemArr.push(parseFloat(b.DiemBTVN).toFixed(1)); // Làm tròn điểm
+                    if(b.DiemBTVN) diemArr.push(b.DiemBTVN); 
+
+                    // LOGIC GOM GHI CHÚ BUỔI HỌC
+                    if(b.GhiChu && b.GhiChu.trim() !== "") {
+                        ghiChuHtml += `<li><strong class="text-yellow-900">${this.formatDateDDMM(b.NgayHoc)}:</strong> ${b.GhiChu}</li>`;
+                    }
                 });
+
+                // Hiển thị Nhật ký ghi chú lên giao diện
+                const ghiChuBox = document.getElementById('m4-ghichu-box');
+                const ghiChuUl = document.getElementById('m4-sghichu-list');
+                if(ghiChuHtml !== '') {
+                    ghiChuUl.innerHTML = ghiChuHtml;
+                    ghiChuBox.classList.remove('hidden'); // Có ghi chú thì hiện khung
+                } else {
+                    ghiChuUl.innerHTML = '<li class="text-gray-400 italic">Không có ghi chú nào trong tháng.</li>';
+                    ghiChuBox.classList.add('hidden'); // Không có thì ẩn đi cho gọn
+                }
 
                 const tongBuoi = sCoMat + sMuon + sVangKP + sVangPhep;
                 
-                // Hiển thị lên UI ngắn gọn
-                document.getElementById('m4-ssobuoi').innerText = tongBuoi;
-                document.getElementById('m4-sbtvn').innerText = sBTVN;
-                document.getElementById('m4-schuyencan').innerText = `Có mặt (${sCoMat}), Muộn (${sMuon}), Nghỉ P (${sVangPhep}), Nghỉ KP (${sVangKP})`;
-                document.getElementById('m4-sdiem').innerText = diemArr.length > 0 ? diemArr.join(', ') : 'Chưa có';
+                const soBuoiDiHoc = sCoMat + sMuon; // Tổng số buổi thực tế có đi học (Có mặt + Muộn)
+				document.getElementById('m4-ssobuoi').innerText = `${soBuoiDiHoc}/${tongBuoi}`;
+				document.getElementById('m4-sbtvn').innerText = `${sBTVN}/${tongBuoi}`;
+				document.getElementById('m4-schuyencan').innerText = `Có mặt (${sCoMat}), Muộn (${sMuon}), Nghỉ P (${sVangPhep}), Nghỉ KP (${sVangKP})`;
+                document.getElementById('m4-sdiem').innerText = diemArr.length > 0 ? diemArr.join('; ') : 'Chưa có';
 
-                // Lưu vào biến tạm để dùng sinh Template
                 const hsInfo = this.data.HocSinh.find(h => h.MaHS === maHS);
                 this.currentReportData = {
+                    maHS: maHS,
                     ten: tenHS,
-                    thang: monthStr.split('-').reverse().join('/'), // YYYY-MM -> MM/YYYY
+                    thang: monthStr.split('-').reverse().join('/'), 
                     sCoMat, sMuon, sVangKP, sVangPhep, tongBuoi, sBTVN,
-                    diemText: diemArr.length > 0 ? diemArr.join(', ') : 'Không có',
+                    diemText: diemArr.length > 0 ? diemArr.join('; ') : 'Không có',
                     hpBuoi: hsInfo ? parseInt(hsInfo.HocPhiBuoi) : 0,
-                    daNop: this.data.ThanhToan.find(t => t.ID_ThanhToan === `${maHS}_${monthStr}`)?.NgayNop ? true : false
+                    daNop: this.data.ThanhToan.find(t => t.ID_ThanhToan === `${maHS}_${monthStr}`)?.NgayNop ? true : false,
+                    idBaoCao: idBaoCao,
+                    monthRaw: monthStr
                 };
 
-                this.generateMsg();
+                if (bcCu.NoiDungTinNhan) {
+                    document.getElementById('m4-final-msg').value = bcCu.NoiDungTinNhan;
+                } else {
+                    this.generateMsg();
+                }
             },
 
             addNote: function(text) {
                 const nx = document.getElementById('m4-nhanxet');
-                if(nx.value) nx.value += '. ' + text;
-                else nx.value = text;
-                this.generateMsg(); // Cập nhật lại text ngay lập tức
+                if(nx.value) nx.value += '. ' + text; else nx.value = text;
+                this.generateMsg(); 
             },
 
             generateMsg: function() {
@@ -790,22 +885,66 @@
                 const soBuoiTinhTien = d.sCoMat + d.sMuon + d.sVangKP;
                 const tienHoc = soBuoiTinhTien * d.hpBuoi;
                 
-                let msg = `Kính gửi phụ huynh học sinh: ${d.ten}\nSau đây là báo cáo học tập Tháng ${d.thang} của con:\n\n`;
-                msg += `- Số buổi học: Đi học ${d.sCoMat + d.sMuon}/${d.tongBuoi} buổi.\n`;
+                let msg = `Kính gửi Quý phụ huynh học sinh ${d.ten},\nLớp Toán xin gửi tới Quý phụ huynh báo cáo tình hình học tập của con trong tháng ${d.thang}:\n\n`;
+                msg += `- Chuyên cần: Đi học ${d.sCoMat + d.sMuon}/${d.tongBuoi} buổi.\n`;
                 if(d.sMuon > 0 || d.sVangPhep > 0 || d.sVangKP > 0) {
                     msg += `  (Chi tiết: Đi muộn ${d.sMuon} buổi, Nghỉ có phép ${d.sVangPhep} buổi, Nghỉ K.phép ${d.sVangKP} buổi).\n`;
                 }
-                msg += `- Bài tập về nhà: Đã nộp ${d.sBTVN}/${d.tongBuoi} bài.\n`;
-                msg += `- Điểm các bài tập: ${d.diemText}.\n`;
+                msg += `- Bài tập về nhà: Đã hoàn thành ${d.sBTVN}/${d.tongBuoi} bài.\n`;
+                msg += `- Điểm các bài tập trong tháng: ${d.diemText}.\n`;
                 
                 if(nx) msg += `- Nhận xét: ${nx}.\n`;
                 
-                msg += `\n* Học phí tháng này (${soBuoiTinhTien} ca x ${this.formatMoney(d.hpBuoi)}): ${this.formatMoney(tienHoc)}.\n`;
+                msg += `\n* Học phí tháng ${d.thang}: ${soBuoiTinhTien} buổi x ${this.formatMoney(d.hpBuoi)} = ${this.formatMoney(tienHoc)}.\n`;
                 if(d.daNop) msg += `(Trạng thái: Thầy đã nhận được học phí tháng này. Cảm ơn phụ huynh!)`;
-                else msg += `Phụ huynh vui lòng nộp học phí cho con trước ngày 10 hàng tháng.\n`;
-				msg += `Xin cảm ơn!.`;
-
+                else msg += `Kính mong Quý phụ huynh hoàn thành việc nộp học phí cho con trước ngày 10 hằng tháng.\n\n`;
+				
+				msg += `Xin cảm ơn Quý phụ huynh đã luôn đồng hành cùng việc học tập của con!.`;
+				
                 document.getElementById('m4-final-msg').value = msg;
+            },
+
+            // Hàm lưu trạng thái Báo cáo (Lưu Nháp hoặc Duyệt)
+            saveReportState: async function(trangThai) {
+                if(!this.currentReportData) return;
+                const d = this.currentReportData;
+                
+                // Luôn cập nhật lại nội dung tin nhắn trước khi lưu
+                this.generateMsg();
+                const finalMsg = document.getElementById('m4-final-msg').value;
+                const nhanXet = document.getElementById('m4-nhanxet').value;
+
+                const payload = [{
+                    ID_BaoCao: d.idBaoCao,
+                    Thang: d.monthRaw,
+                    MaHS: d.maHS,
+                    NhanXet: nhanXet,
+                    NoiDungTinNhan: finalMsg,
+                    TrangThai: trangThai
+                }];
+
+                this.setLoading(true, `Đang ghi nhận dạng: ${trangThai}...`);
+                const res = await this.postData('saveBaoCaoThang', payload);
+                this.setLoading(false);
+
+                if(res.status === 'success') {
+                    this.toast('success', `Đã lưu báo cáo dạng: ${trangThai}`);
+                    
+                    // Cập nhật lại bộ nhớ RAM cục bộ
+                    const idx = this.data.BaoCaoThang.findIndex(b => b.ID_BaoCao === d.idBaoCao);
+                    if(idx > -1) this.data.BaoCaoThang[idx] = payload[0]; else this.data.BaoCaoThang.push(payload[0]);
+                    
+                    // Vẽ lại danh sách học sinh bên trái để cập nhật nhãn màu
+                    this.renderM4Students();
+                    
+                    // Cập nhật lại badge trạng thái hiện tại
+                    const badge = document.getElementById('m4-badge-status');
+                    badge.innerText = trangThai;
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold " + 
+                        (trangThai === "Đã duyệt" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700");
+                } else {
+                    Swal.fire('Lỗi', res.message, 'error');
+                }
             },
 
             copyMsg: function() {
@@ -813,7 +952,7 @@
                 msg.select();
                 msg.setSelectionRange(0, 99999); 
                 navigator.clipboard.writeText(msg.value);
-                this.toast('success', 'Đã copy tin nhắn!');
+                this.toast('success', 'Đã copy tin nhắn báo cáo!');
             },
 
             // --- TÍNH NĂNG NHỎ: THÊM LỚP / HỌC SINH NHANH TRÊN M1 ---
@@ -843,17 +982,23 @@
                 
                 const { value: formValues } = await Swal.fire({
                     title: 'Thêm Học Sinh Mới',
-                    html: `<input id="swal-mahs" class="swal2-input" placeholder="Mã HS (VD: HS01)">` +
+                    html: `<input id="swal-mahs" class="swal2-input font-bold" placeholder="Mã HS (VD: HS01)">` +
                           `<input id="swal-tenhs" class="swal2-input" placeholder="Họ và tên">` +
                           `<select id="swal-malop-hs" class="swal2-input">${classOpts}</select>` +
-                          `<input id="swal-hocphi" type="number" class="swal2-input" placeholder="Học phí / Buổi (VD: 150000)">`,
+                          `<input id="swal-hocphi" type="number" class="swal2-input" placeholder="Học phí / Buổi (VD: 150000)">` +
+                          `<select id="swal-trogiang" class="swal2-input">` +
+                          `  <option value="">-- Trợ Giảng --</option>` +
+                          `  <option value="H">H (Màu Xanh)</option>` +
+                          `  <option value="Q">Q (Màu Đen)</option>` +
+                          `</select>`,
                     focusConfirm: false,
                     preConfirm: () => {
                         return {
                             MaHS: document.getElementById('swal-mahs').value,
                             TenHS: document.getElementById('swal-tenhs').value,
                             MaLop: document.getElementById('swal-malop-hs').value,
-                            HocPhiBuoi: document.getElementById('swal-hocphi').value
+                            HocPhiBuoi: document.getElementById('swal-hocphi').value,
+                            TroGiang: document.getElementById('swal-trogiang').value // Thêm trường này gửi lên Sheet
                         }
                     }
                 });
@@ -863,7 +1008,7 @@
                     this.data.HocSinh.push(formValues);
                     this.setLoading(false);
                     this.toast('success', 'Thêm học sinh thành công!');
-                    this.renderM1(); // Vẽ lại ma trận
+                    this.renderM1(); 
                 }
             }
         };
@@ -876,6 +1021,17 @@
             sidebar.classList.toggle('z-40');
             sidebar.classList.toggle('h-full');
         });
+		
+		// TỰ ĐỘNG ĐĂNG NHẬP NẾU CÓ LƯU MÃ PIN TRƯỚC ĐÓ
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const savedPin = localStorage.getItem('savedPin');
+            if (savedPin) {
+                document.getElementById('login-pin').value = savedPin;
+                document.getElementById('remember-pin').checked = true;
+                app.login(); // Tự động gọi hàm đăng nhập
+            }
+        });
+		
     </script>
 </body>
 </html>
