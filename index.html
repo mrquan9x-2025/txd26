@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Lớp Học</title>
+    <title>Quản Lý Lớp Toán</title>
+	<link rel="icon" type="image/png" href="https://i.postimg.cc/BvtXLkWb/cube.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -30,7 +31,7 @@
     <!-- MÀN HÌNH ĐĂNG NHẬP -->
     <div id="view-login" class="h-screen flex justify-center items-center bg-blue-100">
         <div class="bg-white p-8 rounded-xl shadow-lg w-96 text-center">
-            <h2 class="text-2xl font-bold text-blue-700 mb-6"><i class="fas fa-graduation-cap"></i> Hệ Thống Quản Lý</h2>
+            <h2 class="text-2xl font-bold text-blue-700 mb-6"><i class="fas fa-graduation-cap"></i> Quản Lý Lớp Học</h2>
             <input type="password" id="login-pin" placeholder="Nhập mã PIN giáo viên" class="w-full p-3 border rounded-lg mb-3 text-center text-xl tracking-widest focus:ring-2 focus:ring-blue-500 outline-none">
             
             <!-- CHECKBOX LƯU MÃ PIN -->
@@ -67,6 +68,12 @@
                     <span class="w-6 text-center mr-2">4.</span> Báo cáo
                 </a>
             </nav>
+			<!-- THÊM FOOTER LINK VÀO CUỐI MENU TRÁI -->
+            <div class="p-4 border-t border-blue-150 text-center text-[10px] text-gray-400 bg-blue-50">
+                <a href="https://www.facebook.com/quanptq" target="_blank" class="hover:text-blue-600 transition font-semibold">
+                    Created by Phạm Thế Quân @ 2026
+                </a>
+            </div>
         </aside>
 
         <!-- MAIN CONTENT -->
@@ -76,7 +83,10 @@
                 <button id="mobile-menu-btn" class="text-2xl"><i class="fas fa-bars"></i></button>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-4 md:p-8">
+			<!-- Overlay đóng sidebar khi bấm vùng tối (mobile) -->
+			<div id="sidebar-overlay" class="hidden fixed inset-0 bg-black bg-opacity-40 z-30 md:hidden" onclick="document.getElementById('sidebar-overlay').classList.add('hidden'); const s=document.getElementById('sidebar'); s.classList.add('hidden'); s.classList.remove('absolute','z-40','h-full');"></div>
+            
+			<div class="flex-1 overflow-y-auto p-4 md:p-8">
 
                 <!-- ============================================== -->
                 <!-- M1: TỔNG QUAN -->
@@ -1317,12 +1327,21 @@
 
         // Mobile menu toggle
         document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('hidden');
-            sidebar.classList.toggle('absolute');
-            sidebar.classList.toggle('z-40');
-            sidebar.classList.toggle('h-full');
-        });
+		const sidebar = document.getElementById('sidebar');
+		const overlay = document.getElementById('sidebar-overlay');
+		const isOpen = !sidebar.classList.contains('hidden');
+		if (isOpen) {
+        // Đóng
+        sidebar.classList.add('hidden');
+        sidebar.classList.remove('absolute', 'z-40', 'h-full');
+        overlay.classList.add('hidden');
+		} else {
+        // Mở
+        sidebar.classList.remove('hidden');
+        sidebar.classList.add('absolute', 'z-40', 'h-full');
+        overlay.classList.remove('hidden');
+			}
+		});
 		
 		// TỰ ĐỘNG ĐĂNG NHẬP NẾU CÓ LƯU MÃ PIN TRƯỚC ĐÓ
         window.addEventListener('DOMContentLoaded', (event) => {
