@@ -88,9 +88,10 @@
                             <input type="month" id="m1-month" class="p-1 outline-none font-bold text-gray-700" onchange="app.renderM1()">
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="app.quickAddStudent()" class="border-2 border-purple-800 text-purple-800 font-bold px-4 py-2 rounded hover:bg-purple-100">Thêm học sinh</button>
-                            <button onclick="app.quickAddClass()" class="border-2 border-purple-800 text-purple-800 font-bold px-4 py-2 rounded hover:bg-purple-100">Thêm lớp</button>
-                        </div>
+                            <button onclick="app.quickAddStudent()" class="border-2 border-green-800 text-green-800 font-bold px-4 py-2 rounded hover:bg-purple-100">+ HS</button>
+                            <button onclick="app.quickAddClass()" class="border-2 border-green-800 text-green-800 font-bold px-4 py-2 rounded hover:bg-purple-100">+ Lớp</button>
+							<button onclick="app.openDisableStudentModal()" class="border-2 border-red-600 text-red-600 hover:bg-red-50 font-bold px-4 py-2 rounded transition">- HS</button>
+						</div>
                     </div>
                     <div class="table-container bg-white border rounded shadow-sm">
                         <table class="w-full text-left border-collapse whitespace-nowrap text-sm">
@@ -122,7 +123,9 @@
                             </select>
                             <input type="date" id="m2-date" class="border-2 border-purple-400 text-purple-800 font-bold p-2 rounded bg-white outline-none" onchange="app.renderM2()">
                         </div>
-                        <button onclick="app.saveDiemDanh()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded shadow flex items-center gap-2">
+                        <!-- Ô NHẬP GHI CHÚ BUỔI HỌC CHUNG CHO CẢ LỚP -->
+						<input type="text" id="m2-ghichu-buoi" class="border-2 border-purple-300 p-2 rounded text-xs w-80 outline-none placeholder-purple-400" placeholder="Ghi chú buổi: Tên bài giảng, BTVN, ngày...">
+						<button onclick="app.saveDiemDanh()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded shadow flex items-center gap-2">		
                             <i class="fas fa-cloud-upload-alt"></i> Lưu Buổi Học
                         </button>
                     </div>
@@ -256,9 +259,12 @@
                                 <div class="mt-2 flex flex-wrap gap-2">
                                     <span class="text-[10px] text-gray-500 font-bold uppercase mt-1">Mẫu nhanh:</span>
                                     <button onclick="app.addNote('Học tốt, hăng hái')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-[10px] rounded border text-gray-700">Học tốt, hăng hái</button>
-                                    <button onclick="app.addNote('Làm bài đầy đủ')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-[10px] rounded border text-gray-700">Làm bài đầy đủ</button>
                                     <button onclick="app.addNote('Chưa tập trung')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-[10px] rounded border text-gray-700">Chưa tập trung</button>
-                                    <button onclick="document.getElementById('m4-nhanxet').value=''" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] rounded border border-red-200"><i class="fas fa-trash"></i> Xóa</button>
+                                    <button onclick="document.getElementById('m4-nhanxet').value=''" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] rounded border border-red-200 mr-2"><i class="fas fa-trash"></i> Xóa</button>
+
+									<!-- THÊM 2 NÚT KẾT NỐI AI -->
+									<button onclick="app.suggestAI()" class="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white text-[10px] rounded border border-teal-500 font-bold shadow-sm transition"><i class="fas fa-robot animate-bounce"></i> Gợi ý AI</button>
+									<button onclick="app.clearGroqKey()" class="px-1.5 py-1 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-600 text-[9px] rounded border" title="Xóa/Đổi API Key"><i class="fas fa-key"></i></button>
                                 </div>
                             </div>
 
@@ -270,11 +276,11 @@
                             <div class="flex justify-between items-center border-t pt-4">
                                 <!-- Group nút của Giáo viên -->
                                 <div class="flex gap-2">
-                                    <button onclick="app.saveReportState('Nháp')" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded font-bold text-xs shadow"><i class="fas fa-edit"></i> Lưu Bản Nháp</button>
+                                    <button onclick="app.saveReportState('Nháp')" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded font-bold text-xs shadow"><i class="fas fa-edit"></i> Lưu Nháp</button>
                                     <button onclick="app.saveReportState('Đã duyệt')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-bold text-xs shadow"><i class="fas fa-check-double"></i> Duyệt & Lưu</button>
                                 </div>
                                 <!-- Nút sao chép của Trợ giảng -->
-                                <button onclick="app.copyMsg()" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-bold shadow text-xs"><i class="fas fa-copy"></i> Sao chép gửi phụ huynh</button>
+                                <button onclick="app.copyMsg()" class="px-6 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-bold shadow text-xs"><i class="fas fa-copy"></i> Copy tin nhắn</button>
                             </div>
                         </div>
                     </div>
@@ -318,6 +324,21 @@
                 return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
             },
             
+			// BỘ LỌC THÔNG MINH: QUYẾT ĐỊNH ẨN/HIỆN HỌC SINH THEO THỜI GIAN VÀ TRẠNG THÁI
+            shouldShowStudent: function(hs, monthStr) {
+                const currentMonth = this.getCurrentMonthStr();
+                const recordsInMonth = this.data.DiemDanh.filter(d => d.MaHS === hs.MaHS && d.NgayHoc.startsWith(monthStr));
+                
+                // 1. Nếu xem tháng QUÁ KHỨ: Chỉ hiện nếu tháng đó em này thực tế có đi học (có bản ghi điểm danh)
+                if (monthStr < currentMonth) {
+                    return recordsInMonth.length > 0;
+                }
+                
+                // 2. Nếu xem tháng HIỆN TẠI hoặc TƯƠNG LAI: 
+                // Chỉ hiện nếu học sinh đang hoạt động (TrangThai != 0) HOẶC nếu đã lỡ có điểm danh trong tháng đó rồi
+                const isActive = hs.TrangThai != "0" && hs.TrangThai !== 0; 
+                return isActive || recordsInMonth.length > 0;
+            },
 			// TỰ ĐỘNG ĐỔI MÀU TÊN VÀ HIỂN THỊ ICON TRỢ GIẢNG PHÙ HỢP
             getStudentNameStyled: function(hs) {
                 const tg = (hs.TroGiang || '').toUpperCase().trim();
@@ -326,10 +347,24 @@
                     return `<span class="text-blue-600 font-bold flex items-center gap-1">${hs.TenHS} <span class="bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm" title="Trợ giảng H phụ trách">H</span></span>`;
                 } else if (tg === 'Q') {
                     // Trợ giảng Q: Chữ đen/xám đậm + Nhãn Q đen
-                    return `<span class="text-slate-900 font-extrabold flex items-center gap-1">${hs.TenHS} <span class="bg-slate-800 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm" title="Trợ giảng Q phụ trách">Q</span></span>`;
+                    return `<span class="text-slate-900 font-bold flex items-center gap-1">${hs.TenHS} <span class="bg-slate-800 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm" title="Trợ giảng Q phụ trách">Q</span></span>`;
                 }
                 // Không có trợ giảng phụ trách: Chữ xám thường
                 return `<span class="text-gray-700">${hs.TenHS}</span>`;
+            },
+			// TỰ ĐỘNG SINH MÃ HỌC SINH TIẾP THEO (Dạng HS001, HS002...)
+            generateNextMaHS: function() {
+                let maxIdNum = 0;
+                this.data.HocSinh.forEach(hs => {
+                    const match = (hs.MaHS || '').match(/^HS(\d+)$/i);
+                    if (match) {
+                        const idNum = parseInt(match[1]);
+                        if (idNum > maxIdNum) maxIdNum = idNum;
+                    }
+                });
+                const nextIdNum = maxIdNum + 1;
+                // Trả về dạng HS001, HS002... (đệm đủ 3 chữ số)
+                return `HS${String(nextIdNum).padStart(3, '0')}`;
             },
 			
             // Chuyển tab menu
@@ -432,13 +467,13 @@
                 
                 // Tiêu đề cột cố định
                 thead.innerHTML = `<tr class="bg-blue-200 text-blue-900 border-b">
-                    <th class="p-2 border-r min-w-[150px]">Học Sinh</th>
-                    <th class="p-2 border-r text-center">Số buổi</th>
-                    <th class="p-2 border-r text-right min-w-[120px]">Thành tiền</th>
+                    <th class="p-2 border-r w-[220px]">Học Sinh</th>
+                    <th class="p-2 border-r text-center w-[70px]">Số buổi</th>
+                    <th class="p-2 border-r text-right w-[90px]">Thành tiền</th>
                     <th class="p-2 text-left pl-4 text-gray-500 font-normal">Ngày</th>
                 </tr>`;
-
-                let htmlTbody = '';
+				
+				let htmlTbody = '';
                 let tongHocSinhThang = 0;
                 let tongHocPhiThang = 0;
                 let maxCols = 0; // Tính số cột dài nhất để đệm ô trống
@@ -455,13 +490,22 @@
                     if(uniqueDatesLop.length > maxCols) maxCols = uniqueDatesLop.length;
 
                     // 2. Vẽ dòng tiêu đề lớp + Các ngày học
-                    let classRow = `<tr class="bg-yellow-300 font-bold">
-                        <td class="p-2 text-yellow-900 border-r border-yellow-400">${lop.TenLop}</td>
+                    const soHSTrongLop = hsLop.filter(hs => this.shouldShowStudent(hs, monthStr)).length;
+					let classRow = `<tr class="bg-yellow-300 font-bold">
+                        <td class="p-2 text-yellow-900 border-r border-yellow-400">${lop.TenLop} <span class="font-normal text-yellow-700 text-sm">(${soHSTrongLop}HS)</span></td>
                         <td colspan="2" class="border-r border-yellow-400 bg-yellow-200"></td>`;
                     
                     uniqueDatesLop.forEach(date => {
-                        classRow += `<td class="p-2 text-center text-yellow-900 border-r border-yellow-400">${this.formatDateDDMM(date)}</td>`;
+                        // CHỈ TÌM BẢN GHI CÓ MÃ "CHUNG" ĐỂ LẤY THÔNG TIN BUỔI HỌC
+                        const sampleRec = dataThang.find(d => d.MaLop === lop.MaLop && d.NgayHoc === date && d.MaHS === "CHUNG");
+                        const hasBuoiClass = (sampleRec && sampleRec.GhiChuBuoi) 
+                            ? "underline decoration-dotted decoration-yellow-600 cursor-help" 
+                            : "";
+                        const tooltipBuoi = (sampleRec && sampleRec.GhiChuBuoi) ? `Note: ${sampleRec.GhiChuBuoi}` : 'Không có ghi chú buổi';
+
+                        classRow += `<td class="p-2 text-center text-yellow-900 border-r border-yellow-400 w-12 min-w-[48px] max-w-[48px] ${hasBuoiClass}" title="${tooltipBuoi}">${this.formatDateDDMM(date)}</td>`;
                     });
+					
                     // Đệm thêm cột trống cho dòng lớp
                     classRow += `<td colspan="99" class="bg-yellow-200"></td></tr>`;
 
@@ -475,7 +519,7 @@
                         // LOGIC BỘ LỌC HỌC SINH NGHỈ HỌC:
                         // Nếu đang xem tháng quá khứ, và học sinh này không có data điểm danh -> Bỏ qua không hiển thị
                         const isPastMonth = monthStr < this.getCurrentMonthStr();
-                        if (isPastMonth && recordsHs.length === 0) return; 
+                        if (!this.shouldShowStudent(hs, monthStr)) return; 
 
                         countHsHienThi++;
                         tongHocSinhThang++;
@@ -560,12 +604,16 @@
                     tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-400">Vui lòng chọn Lớp và Ngày</td></tr>'; return;
                 }
 
-                const hsLop = this.data.HocSinh.filter(hs => hs.MaLop === maLop);
+                const monthStr = ngayHoc.substring(0, 7); // Trích xuất tháng từ ngày được chọn
+                const hsLop = this.data.HocSinh.filter(hs => hs.MaLop === maLop && this.shouldShowStudent(hs, monthStr));
                 if(hsLop.length === 0) {
                      tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-red-500">Lớp này chưa có HS.</td></tr>'; return;
                 }
 
                 tbody.innerHTML = '';
+				// TÌM BẢN GHI ĐẠI DIỆN "CHUNG" ĐỂ LOAD LẠI GHI CHÚ BUỔI HỌC CŨ
+                const classRecord = this.data.DiemDanh.find(d => d.MaLop === maLop && d.NgayHoc === ngayHoc && d.MaHS === "CHUNG");
+                document.getElementById('m2-ghichu-buoi').value = classRecord ? (classRecord.GhiChuBuoi || '') : '';
                 hsLop.forEach(hs => {
                     const idBuoi = `${maLop}_${ngayHoc}_${hs.MaHS}`;
                     const dCu = this.data.DiemDanh.find(d => d.ID_Buoi === idBuoi) || {};
@@ -598,7 +646,10 @@
                 const ngayHoc = document.getElementById('m2-date').value;
                 if (!maLop || !ngayHoc) return Swal.fire('Lỗi', 'Chưa chọn lớp/ngày', 'error');
 
+                const ghiChuBuoiVal = document.getElementById('m2-ghichu-buoi').value;
                 const dataToSave = [];
+
+                // 1. Quét lưu dữ liệu chuyên cần của học sinh (Cột GhiChuBuoi gửi lên để TRỐNG)
                 document.querySelectorAll('.student-row').forEach(row => {
                     const sc = row.querySelector('.i-soca').value;
                     if(sc > 0) {
@@ -609,11 +660,27 @@
                             SoCa: sc,
                             BTVN_HoanThanh: row.querySelector('.i-btvn').checked,
                             DiemBTVN: row.querySelector('.i-diem').value,
-                            GhiChu: row.querySelector('.i-ghichu').value
+                            GhiChu: row.querySelector('.i-ghichu').value,
+                            GhiChuBuoi: "" // ĐỂ TRỐNG ĐỂ TRÁNH DƯ THỪA DỮ LIỆU
                         });
                     }
                 });
+
                 if(dataToSave.length === 0) return;
+
+                // 2. TỰ ĐỘNG CHÈN THÊM ĐÚNG 1 DÒNG ĐẠI DIỆN CHUNG CHO CẢ BUỔI HỌC
+                dataToSave.push({
+                    ID_Buoi: `${maLop}_${ngayHoc}_CHUNG`, // Khóa chính chung
+                    NgayHoc: ngayHoc,
+                    MaLop: maLop,
+                    MaHS: "CHUNG", // Mã đặc biệt đại diện cho thông tin buổi học
+                    TrangThai: "1",
+                    SoCa: "0", // 0 ca để không ảnh hưởng đến bất kỳ phép tính nào
+                    BTVN_HoanThanh: false,
+                    DiemBTVN: "",
+                    GhiChu: "",
+                    GhiChuBuoi: ghiChuBuoiVal // LƯU TEXT GHI CHÚ CHUNG DUY NHẤT Ở ĐÂY
+                });
 
                 this.setLoading(true, "Đang lưu...");
                 const res = await this.postData('saveDiemDanh', dataToSave);
@@ -659,6 +726,7 @@
                 let demCanThu = 0; let demDaThu = 0; let demConThieu = 0; // Thêm 3 biến đếm học sinh
 
                 this.data.HocSinh.forEach(hs => {
+					if (!this.shouldShowStudent(hs, monthStr)) return;
                     const buoiHocHs = dataThang.filter(d => d.MaHS === hs.MaHS);
                     if(buoiHocHs.length === 0) return;
 
@@ -763,8 +831,8 @@
                     ul.innerHTML = '<li class="p-4 text-gray-400 text-sm italic">Vui lòng chọn Lớp và Tháng</li>'; return;
                 }
 
-                const hsLop = this.data.HocSinh.filter(hs => hs.MaLop === maLop);
-                ul.innerHTML = '';
+                const hsLop = this.data.HocSinh.filter(hs => hs.MaLop === maLop && this.shouldShowStudent(hs, monthStr));
+				ul.innerHTML = '';
                 
                 hsLop.forEach(hs => {
                     // Tìm trạng thái lưu trữ của báo cáo em này
@@ -893,7 +961,7 @@
                 msg += `- Bài tập về nhà: Đã hoàn thành ${d.sBTVN}/${d.tongBuoi} bài.\n`;
                 msg += `- Điểm các bài tập trong tháng: ${d.diemText}.\n`;
                 
-                if(nx) msg += `- Nhận xét: ${nx}.\n`;
+                if(nx) msg += `- Nhận xét: ${nx}\n`;
                 
                 msg += `\n* Học phí tháng ${d.thang}: ${soBuoiTinhTien} buổi x ${this.formatMoney(d.hpBuoi)} = ${this.formatMoney(tienHoc)}.\n`;
                 if(d.daNop) msg += `(Trạng thái: Thầy đã nhận được học phí tháng này. Cảm ơn phụ huynh!)`;
@@ -954,6 +1022,163 @@
                 navigator.clipboard.writeText(msg.value);
                 this.toast('success', 'Đã copy tin nhắn báo cáo!');
             },
+			
+			// =========================================
+            // TÍCH HỢP TRỢ LÝ AI
+            // =========================================
+            
+            // 1. Hàm gọi AI gợi ý nhận xét
+            suggestAI: async function() {
+                if(!this.currentReportData) return Swal.fire('Lỗi', 'Vui lòng chọn học sinh trước', 'error');
+                
+                // Kiểm tra xem đã lưu API Key chưa, nếu chưa thì yêu cầu nhập
+                let apiKey = localStorage.getItem('groqApiKey');
+                if(!apiKey) {
+                    const { value: inputKey } = await Swal.fire({
+                        title: 'Nhập Groq API Key',
+                        input: 'password',
+                        inputPlaceholder: 'Dán gsk_xxxx của bạn vào đây...',
+                        showCancelButton: true,
+                        confirmButtonText: 'Lưu Key',
+                        cancelButtonText: 'Hủy'
+                    });
+                    if (inputKey) {
+                        localStorage.setItem('groqApiKey', inputKey.trim());
+                        apiKey = inputKey.trim();
+                        this.toast('success', 'Đã lưu API Key thành công!');
+                    } else return;
+                }
+
+                const d = this.currentReportData;
+                
+                // Thu thập nhật ký ghi chú hàng ngày của học sinh (nếu có) hiển thị trên UI
+                const ghiChuText = document.getElementById('m4-sghichu-list').innerText;
+
+                // Thiết lập cấu trúc Prompt gửi cho AI
+                const prompt = `Bạn là trợ lý của giáo viên Toán dạy nhóm tại Việt Nam.
+				Nhiệm vụ của bạn là hỗ trợ giáo viên viết nhận xét cuối tháng gửi phụ huynh học sinh.
+				=== THÔNG TIN HỌC SINH ===
+				- Họ tên học sinh: ${d.ten}
+				- Chuyên cần: Đi học ${d.sCoMat + d.sMuon}/${d.tongBuoi} buổi (Trong đó Muộn: ${d.sMuon}, Nghỉ có phép: ${d.sVangPhep}, Nghỉ không phép: ${d.sVangKP}).
+				- Bài tập về nhà: Đã nộp ${d.sBTVN}/${d.tongBuoi} bài.
+				- Điểm các bài tập: ${d.diemText}.
+				- Ghi chú của giáo viên: "${ghiChuText.replace(/\n/g, '; ')}".
+				=== YÊU CẦU ===
+				Hãy viết 3 gợi ý nhận xét KHÁC NHAU. Ba nhận xét phải giống như giáo viên thật đang nhắn cho phụ huynh.
+				- Phương án 1: Nhẹ nhàng, tích cực. - Phương án 2: Cân bằng giữa động viên và góp ý. - Phương án 3: Nhấn mạnh điểm cần cải thiện nhưng vẫn lịch sự.
+				=== QUY TẮC ===
+				- Nhận xét nên gồm 2 đến 4 câu, gồm 3 ý chính: Ý 1 là Điều làm tốt; Ý 2 là Điều cần cải thiện; Ý 3 có thể là Định hướng cải thiện kết quả học tập hoặc Động viên hoặc Đề nghị phụ huynh phối hợp.
+				- Mỗi nhận xét dài khoảng 25 đến 50 từ.
+				- Không cần nhắc đến tất cả các thông tin, chỉ chọn những điểm nổi bật nhất. KHÔNG nhắc lại các số liệu từ thông tin. 
+				- Ưu tiên nhắc đến ghi chú của giáo viên (nếu có).
+				- Dùng đại từ "Con".
+				- Văn phong tự nhiên, gần gũi, đúng phong cách giáo viên.
+				- Không dùng những từ: "kém", "lười", "yếu".
+				=== VÍ DỤ ===
+				- Ví dụ 1: Con học tập nghiêm túc, tham gia đầy đủ các buổi học và hoàn thành tốt bài tập. Mong con tiếp tục duy trì tinh thần học tập này.
+				- Ví dụ 2: Con tiếp thu bài tốt, tuy nhiên cần duy trì việc đi học đầy đủ và đúng giờ để đạt kết quả tốt hơn.
+				- Ví dụ 3: Con tham gia học đầy đủ nhưng việc hoàn thành bài tập về nhà chưa đều. Mong Quý phụ huynh nhắc nhở con ôn tập và hoàn thành bài tập sau mỗi buổi học.
+				- Ví dụ 4: Tháng này con nghỉ học tương đối nhiều nên ảnh hưởng đến việc tiếp thu kiến thức. Mong Quý phụ huynh quan tâm, nhắc nhở để con tham gia học đầy đủ hơn.
+				- Ví dụ 5: Con có ý thức tham gia học đầy đủ, tuy nhiên cần rèn luyện thêm kỹ năng làm bài và ôn tập kiến thức để cải thiện kết quả.
+				
+				BẮT BUỘC TRẢ VỀ định dạng JSON thuần túy (không kèm markdown \`\`\`json) có cấu trúc chính xác sau:
+				{
+					"goi_y_1": "Nhẹ nhàng, tích cực...",
+					"goi_y_2": "Cân bằng giữa động viên và góp ý...",
+					"goi_y_3": "Nhận xét nhắc nhở điểm yếu, chỉ ra phần cần cố gắng rèn luyện tập trung..."
+				}`;
+
+                this.setLoading(true, "AI đang phân tích số liệu học tập...");
+
+                try {
+                    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${apiKey}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: "openai/gpt-oss-120b",
+                            messages: [
+                                { role: "system", content: "You are a helpful assistant that only outputs clean JSON." },
+                                { role: "user", content: prompt }
+                            ],
+                            response_format: { type: "json_object" }, // Ép AI trả về JSON chuẩn
+                            temperature: 0.6
+                        })
+                    });
+
+                    // Xử lý lỗi xác thực API Key
+                    if (response.status === 401) {
+                        localStorage.removeItem('groqApiKey');
+                        throw new Error("API Key không hợp lệ hoặc đã bị khóa. Vui lòng bấm thử lại để nhập lại Key.");
+                    }
+
+                    const result = await response.json();
+                    this.setLoading(false);
+
+                    // Phân tích cú pháp JSON nhận về từ AI
+                    const aiContent = JSON.parse(result.choices[0].message.content);
+
+                    // Hiện hộp thoại Popup hiển thị 3 phương án để giáo viên chọn
+                    Swal.fire({
+                        title: 'Gợi ý nhận xét từ AI',
+                        text: 'Chọn 1 phương án dưới đây để điền nhanh vào khung nhận xét:',
+                        icon: 'info',
+                        width: '600px',
+                        showCancelButton: true,
+                        cancelButtonText: 'Đóng',
+                        showConfirmButton: false,
+                        html: `
+                            <div class="flex flex-col gap-3 text-left text-xs mt-4">
+                                <button onclick="app.applyAiComment('${aiContent.goi_y_1.replace(/'/g, "\\'")}')" class="p-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded text-green-800 font-medium text-left transition flex flex-col">
+                                    <span class="font-bold text-[10px] text-green-600 uppercase mb-1">🟢 Phương án 1: </span>
+                                    <span>"${aiContent.goi_y_1}"</span>
+                                </button>
+                                <button onclick="app.applyAiComment('${aiContent.goi_y_2.replace(/'/g, "\\'")}')" class="p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded text-gray-800 font-medium text-left transition flex flex-col">
+                                    <span class="font-bold text-[10px] text-gray-500 uppercase mb-1">🟡 Phương án 2: </span>
+                                    <span>"${aiContent.goi_y_2}"</span>
+                                </button>
+                                <button onclick="app.applyAiComment('${aiContent.goi_y_3.replace(/'/g, "\\'")}')" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded text-red-800 font-medium text-left transition flex flex-col">
+                                    <span class="font-bold text-[10px] text-red-600 uppercase mb-1">🔴 Phương án 3: </span>
+                                    <span>"${aiContent.goi_y_3}"</span>
+                                </button>
+                            </div>
+                        `
+                    });
+
+                } catch (error) {
+                    this.setLoading(false);
+                    Swal.fire('Lỗi AI', error.message, 'error');
+                }
+            },
+
+            // 2. Hàm điền nhận xét đã chọn vào Textarea
+            applyAiComment: function(commentText) {
+                const nx = document.getElementById('m4-nhanxet');
+                nx.value = commentText;
+                this.generateMsg(); // Tự động cập nhật tin nhắn xem trước
+                Swal.close(); // Đóng popup
+                this.toast('success', 'Đã áp dụng nhận xét AI!');
+            },
+
+            // 3. Hàm xóa API Key cũ để nhập Key mới
+            clearGroqKey: function() {
+                Swal.fire({
+                    title: 'Xóa API Key?',
+                    text: 'Bạn có chắc chắn muốn xóa Groq API Key đã lưu trên thiết bị này không?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        localStorage.removeItem('groqApiKey');
+                        this.toast('success', 'Đã xóa API Key!');
+                    }
+                });
+            },
+			
 
             // --- TÍNH NĂNG NHỎ: THÊM LỚP / HỌC SINH NHANH TRÊN M1 ---
             quickAddClass: async function() {
@@ -976,14 +1201,89 @@
                 }
             },
 
-            quickAddStudent: async function() {
+            // POPUP QUY TRÌNH 2 BƯỚC CHO HỌC SINH NGHỈ HỌC
+            openDisableStudentModal: async function() {
+                if (this.data.LopHoc.length === 0) return Swal.fire('Lỗi', 'Chưa có lớp học nào trong hệ thống', 'error');
+
+                // BƯỚC 1: Hiện danh sách Lớp để chọn
+                const classOpts = this.data.LopHoc.reduce((acc, curr) => {
+                    acc[curr.MaLop] = curr.TenLop;
+                    return acc;
+                }, {});
+
+                const { value: maLop } = await Swal.fire({
+                    title: 'Chọn Lớp Học',
+                    input: 'select',
+                    inputOptions: classOpts,
+                    inputPlaceholder: '-- Chọn Lớp của học sinh nghỉ --',
+                    showCancelButton: true,
+                    confirmButtonText: 'Tiếp tục <i class="fas fa-arrow-right"></i>',
+                    cancelButtonText: 'Hủy'
+                });
+
+                if (maLop) {
+                    // Lọc ra các học sinh ĐANG HOẠT ĐỘNG thực tế của lớp đó
+                    const activeStudents = this.data.HocSinh.filter(hs => hs.MaLop === maLop && hs.TrangThai != "0" && hs.TrangThai !== 0);
+
+                    if (activeStudents.length === 0) {
+                        return Swal.fire('Thông báo', 'Lớp này hiện không còn học sinh nào đang hoạt động.', 'info');
+                    }
+
+                    // BƯỚC 2: Hiện danh sách học sinh của lớp đó
+                    const studentOpts = activeStudents.reduce((acc, curr) => {
+                        acc[curr.MaHS] = curr.TenHS;
+                        return acc;
+                    }, {});
+
+                    const { value: maHS } = await Swal.fire({
+                        title: 'Chọn Học Sinh Nghỉ',
+                        input: 'select',
+                        inputOptions: studentOpts,
+                        inputPlaceholder: '-- Chọn Học Sinh --',
+                        showCancelButton: true,
+                        confirmButtonText: 'Xác nhận cho nghỉ học',
+                        cancelButtonText: 'Hủy',
+                        confirmButtonColor: '#d33' // Nút đỏ cảnh báo
+                    });
+
+                    // BƯỚC 3: Ghi nhận trạng thái lên Sheet
+                    if (maHS) {
+                        const hsInfo = this.data.HocSinh.find(h => h.MaHS === maHS);
+                        if (hsInfo) {
+                            this.executeDisableStudent(hsInfo.MaHS, hsInfo.TenHS);
+                        }
+                    }
+                }
+            },
+
+            // Hàm thực thi lưu trạng thái Đã nghỉ lên Sheet
+            executeDisableStudent: async function(maHS, tenHS) {
+                const hsIndex = this.data.HocSinh.findIndex(h => h.MaHS === maHS);
+                if (hsIndex > -1) {
+                    const updatedHs = { ...this.data.HocSinh[hsIndex], TrangThai: "0" };
+
+                    this.setLoading(true, "Đang ghi nhận nghỉ học...");
+                    const res = await this.postData('saveHocSinh', [updatedHs]);
+                    this.setLoading(false);
+
+                    if (res.status === 'success') {
+                        Swal.fire('Thành công', `Đã ghi nhận nghỉ học cho em ${tenHS}`, 'success');
+                        this.data.HocSinh[hsIndex] = updatedHs;
+                        this.renderM1(); // Vẽ lại ma trận lập tức
+                    } else {
+                        Swal.fire('Lỗi', res.message, 'error');
+                    }
+                }
+            },
+			
+			
+			quickAddStudent: async function() {
                 if(this.data.LopHoc.length === 0) return Swal.fire('Lỗi', 'Vui lòng tạo lớp trước!', 'error');
                 const classOpts = this.data.LopHoc.map(l => `<option value="${l.MaLop}">${l.TenLop}</option>`).join('');
                 
                 const { value: formValues } = await Swal.fire({
                     title: 'Thêm Học Sinh Mới',
-                    html: `<input id="swal-mahs" class="swal2-input font-bold" placeholder="Mã HS (VD: HS01)">` +
-                          `<input id="swal-tenhs" class="swal2-input" placeholder="Họ và tên">` +
+                    html: `<input id="swal-tenhs" class="swal2-input" placeholder="Họ và tên">` +
                           `<select id="swal-malop-hs" class="swal2-input">${classOpts}</select>` +
                           `<input id="swal-hocphi" type="number" class="swal2-input" placeholder="Học phí / Buổi (VD: 150000)">` +
                           `<select id="swal-trogiang" class="swal2-input">` +
@@ -993,16 +1293,18 @@
                           `</select>`,
                     focusConfirm: false,
                     preConfirm: () => {
+					const nextMaHS = app.generateNextMaHS(); // Tự động sinh mã tiếp theo (VD: HS008)
                         return {
-                            MaHS: document.getElementById('swal-mahs').value,
-                            TenHS: document.getElementById('swal-tenhs').value,
+                            MaHS: nextMaHS,
+							TenHS: document.getElementById('swal-tenhs').value,
                             MaLop: document.getElementById('swal-malop-hs').value,
                             HocPhiBuoi: document.getElementById('swal-hocphi').value,
-                            TroGiang: document.getElementById('swal-trogiang').value // Thêm trường này gửi lên Sheet
+                            TroGiang: document.getElementById('swal-trogiang').value,
+							TrangThai: "1"
                         }
                     }
                 });
-                if (formValues && formValues.MaHS && formValues.TenHS) {
+                if (formValues && formValues.TenHS) {
                     this.setLoading(true, "Đang lưu học sinh...");
                     await this.postData('saveHocSinh', [formValues]);
                     this.data.HocSinh.push(formValues);
