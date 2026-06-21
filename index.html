@@ -263,19 +263,32 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="block text-xs font-bold text-gray-700 mb-2">Nhận xét của giáo viên trong tháng (Thầy cô viết tại đây)</label>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">Nhận xét của giáo viên trong tháng</label>
                                 <textarea id="m4-nhanxet" oninput="app.generateMsg()" class="w-full border rounded p-3 text-xs focus:ring-2 focus:ring-teal-500 outline-none" rows="2" placeholder="Nhập thêm đánh giá..."></textarea>
                                 
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    <span class="text-[10px] text-gray-500 font-bold uppercase mt-1">Mẫu nhanh:</span>
-                                    <button onclick="app.addNote('Học tốt, hăng hái')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-[10px] rounded border text-gray-700">Học tốt, hăng hái</button>
-                                    <button onclick="app.addNote('Chưa tập trung')" class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-[10px] rounded border text-gray-700">Chưa tập trung</button>
-                                    <button onclick="document.getElementById('m4-nhanxet').value=''" class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] rounded border border-red-200 mr-2"><i class="fas fa-trash"></i> Xóa</button>
-
-									<!-- THÊM 2 NÚT KẾT NỐI AI -->
-									<button onclick="app.suggestAI()" class="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white text-[10px] rounded border border-teal-500 font-bold shadow-sm transition"><i class="fas fa-robot animate-bounce"></i> Gợi ý AI</button>
-									<button onclick="app.clearGroqKey()" class="px-1.5 py-1 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-600 text-[9px] rounded border" title="Xóa/Đổi API Key"><i class="fas fa-key"></i></button>
-                                </div>
+                                <div class="mt-2 flex flex-wrap gap-2 items-center">
+									<!-- NÚT MẪU NHANH - mở popup -->
+									<button onclick="app.openQuickTemplates()"
+										class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] rounded border border-indigo-200 font-bold transition">
+										<i class="fas fa-list-ul mr-1"></i> Mẫu nhanh
+									</button>
+									<!-- NÚT XÓA -->
+									<button onclick="document.getElementById('m4-nhanxet').value=''; app.generateMsg();"
+										class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] rounded border border-red-200 transition">
+										<i class="fas fa-trash"></i> Xóa
+									</button>
+									<!-- NÚT GỢI Ý AI -->
+									<button onclick="app.suggestAI()"
+										class="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white text-[10px] rounded border border-teal-500 font-bold shadow-sm transition">
+										<i class="fas fa-robot animate-bounce"></i> Gợi ý AI
+									</button>
+									<!-- NÚT ĐỔI KEY -->
+									<button onclick="app.clearGroqKey()"
+										class="px-1.5 py-1 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-600 text-[9px] rounded border"
+										title="Xóa/Đổi API Key">
+										<i class="fas fa-key"></i>
+									</button>
+								</div>
                             </div>
 
                             <div class="mb-4">
@@ -949,11 +962,104 @@
                 }
             },
 
-            addNote: function(text) {
-                const nx = document.getElementById('m4-nhanxet');
-                if(nx.value) nx.value += '. ' + text; else nx.value = text;
-                this.generateMsg(); 
-            },
+            // Hàm thêm text vào ô nhận xét (dùng nội bộ)
+				addNote: function(text) {
+					const nx = document.getElementById('m4-nhanxet');
+					if (nx.value && !nx.value.endsWith(' ') && !nx.value.endsWith('. ')) {
+						nx.value += '. ' + text;
+					} else {
+						nx.value = (nx.value + text).trim();
+					}
+					this.generateMsg();
+				},
+
+				// ============================================
+				// MẪU NHANH – POPUP CHỌN NHIỀU
+				// ============================================
+
+				// Danh sách mẫu: thêm/sửa/xóa mẫu tại đây dễ dàng
+				// Mỗi mục gồm: { label: "Nhãn hiển thị", text: "Nội dung chèn vào nhận xét" }
+				QUICK_TEMPLATES: [
+					// --- TÍCH CỰC ---
+					{ label: "🟢 Học tốt",        text: "Con học tập nghiêm túc, tham gia đầy đủ các buổi học và hoàn thành tốt bài tập. Mong con tiếp tục duy trì tinh thần học tập này." },
+					{ label: "🟢 Ý thức và kết quả tiến bộ",           text: "Con có nhiều tiến bộ so với thời gian trước về ý thức học tập và kết quả làm bài. Mong con tiếp tục cố gắng để phát huy kết quả đạt được." },
+					{ label: "🟢 Kết quả tiến bộ",           text: "Kết quả làm bài của con có sự tiến bộ so với thời gian trước. Mong con tiếp tục cố gắng để duy trì và phát huy kết quả đạt được." },
+					{ label: "🟢 Hiểu bài, làm bài tốt",    text: "Con có thái độ học tập tích cực, có cố gắng trong việc hoàn thành bài tập. Mong con tiếp tục phát huy tinh thần này." },
+					{ label: "🟢 Ghi chép cẩn thận, hiểu bài và hoàn thành bài tốt",     text: "Con ghi chép đầy đủ, cẩn thận, tiếp thu bài tốt và hoàn thành các bài tập nghiêm túc. Mong con tiếp tục duy trì tinh thần học tập tích cực này." },
+					// --- CẦN CẢI THIỆN ---
+					{ label: "🟡 Kết quả tốt nhưng cần chăm chỉ hơn",           text: "Con tiếp thu bài tốt, tuy nhiên cần duy trì việc đi học đầy đủ và đúng giờ để đạt kết quả tốt hơn." },
+					{ label: "🟡 Đi học đủ nhưng thiếu bài tập về nhà",     text: "Con tham gia học đầy đủ nhưng việc hoàn thành bài tập về nhà chưa đều. Mong Quý phụ huynh nhắc nhở con ôn tập và hoàn thành bài tập sau mỗi buổi học." },
+					{ label: "🟡 Đi học đầy đủ nhưng điểm còn thấp",       text: "Con có ý thức tham gia học đầy đủ, tuy nhiên cần rèn luyện thêm kỹ năng làm bài và ôn tập kiến thức để cải thiện kết quả." },
+					{ label: "🟡 Kết quả chưa ổn định",        text: "Kết quả học tập của con còn chưa ổn định giữa các buổi học. Con cần dành thêm thời gian ôn tập và luyện tập để củng cố kiến thức." },
+					{ label: "🟡 Hiểu bài nhưng hay quên làm bài tập",        text: "Con tiếp thu bài khá tốt và tham gia học đầy đủ. Tuy nhiên, con còn quên hoàn thành bài tập về nhà. Mong Quý phụ huynh nhắc nhở con duy trì thói quen làm bài sau mỗi buổi học." },
+					{ label: "🟡 Hiểu bài nhưng trình bày chưa cẩn thận",        text: "Con nắm được kiến thức bài học, tuy nhiên khi làm bài còn thiếu cẩn thận nên dễ xảy ra sai sót đáng tiếc. Con cần chú ý trình bày rõ ràng và kiểm tra lại sau khi làm xong." },
+					{ label: "🟡 Hiểu bài nhưng còn chủ quan",        text: "Con tiếp thu bài khá tốt, nhưng đôi khi còn chủ quan trong quá trình làm bài nên ảnh hưởng đến kết quả. Con cần rèn luyện tính cẩn thận và tập trung hơn." },
+					// --- NHẮC NHỞ PHHS ---
+					{ label: "🔴 Nghỉ học nhiều", text: "Tháng này con nghỉ học tương đối nhiều nên ảnh hưởng đến việc tiếp thu kiến thức. Mong Quý phụ huynh quan tâm, nhắc nhở để con tham gia học đầy đủ hơn." },
+					{ label: "🔴 Nghỉ học nhiều, cần chép bài", text: "Tháng này con nghỉ học khá nhiều nên việc tiếp thu kiến thức bị gián đoạn. Mong Quý phụ huynh nhắc nhở con chép đầy đủ lý thuyết, hoàn thành bài tập của các buổi nghỉ và sắp xếp tham gia học đầy đủ hơn." },
+					{ label: "🔴 Thiếu nhiều bài tập về nhà", text: "Con còn chưa hoàn thành nhiều bài tập về nhà, điều này ảnh hưởng đến quá trình củng cố kiến thức. Mong Quý phụ huynh quan tâm, nhắc nhở con hoàn thành đầy đủ bài tập sau mỗi buổi học." },
+					{ label: "🔴 Nộp bài muộn",            text: "Con thường nộp bài tập muộn, mong phụ huynh nhắc con hoàn thành bài đúng hạn" },
+					{ label: "🔴 Hay đi học muộn",            text: "Con còn đi học muộn ở một số buổi, điều này ảnh hưởng đến việc tiếp thu bài học ngay từ đầu giờ. Mong Quý phụ huynh nhắc nhở con sắp xếp thời gian để đến lớp đúng giờ." },
+					{ label: "🔴 Cần cố gắng hơn",            text: "Con cần dành thêm thời gian ôn lại lý thuyết và luyện tập bài tập để củng cố kiến thức. Hy vọng với sự chăm chỉ và sự đồng hành của gia đình, con sẽ có nhiều tiến bộ trong thời gian tới." },
+					{ label: "🔴 Cần cải thiện ý thức học tập",            text: "Con còn thiếu tập trung trong học tập và chưa hoàn thành đầy đủ các yêu cầu của lớp. Hy vọng với sự phối hợp của gia đình, con sẽ có sự tiến bộ trong thời gian tới." },
+				],
+
+				// Hàm mở popup chọn mẫu nhanh
+				openQuickTemplates: function() {
+					// Tạo HTML cho từng mẫu dưới dạng checkbox
+					const checkboxesHtml = this.QUICK_TEMPLATES.map((tpl, idx) => `
+						<label class="flex items-start gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer border border-transparent hover:border-gray-200 transition">
+							<input type="checkbox" id="tpl-${idx}" value="${idx}"
+								class="mt-0.5 w-4 h-4 accent-indigo-600 flex-shrink-0 cursor-pointer">
+							<span class="text-xs text-gray-700 leading-snug">
+								<span class="font-semibold">${tpl.label}</span><br>
+								<span class="text-gray-400 italic text-[11px]">"${tpl.text}"</span>
+							</span>
+						</label>
+					`).join('');
+
+					Swal.fire({
+						title: '📋 Chọn nhận xét',
+						width: '560px',
+						showCancelButton: true,
+						confirmButtonText: '✅ Thêm vào nhận xét',
+						cancelButtonText: 'Đóng',
+						confirmButtonColor: '#4f46e5',
+						html: `
+							<p class="text-xs text-gray-500 mb-3 text-left">Tích chọn một hoặc nhiều mẫu.</p>
+							<div class="flex flex-col gap-1 text-left max-h-72 overflow-y-auto pr-1">
+								${checkboxesHtml}
+							</div>
+							<div class="flex gap-2 mt-3 pt-3 border-t">
+								<button onclick="document.querySelectorAll('[id^=tpl-]').forEach(c=>c.checked=true)"
+									class="text-[10px] px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded border text-gray-600">
+									Chọn tất cả
+								</button>
+								<button onclick="document.querySelectorAll('[id^=tpl-]').forEach(c=>c.checked=false)"
+									class="text-[10px] px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded border text-gray-600">
+									Bỏ chọn hết
+								</button>
+							</div>
+						`,
+						preConfirm: () => {
+							// Thu thập các mẫu đã chọn
+							const selected = [...document.querySelectorAll('[id^=tpl-]:checked')]
+								.map(cb => this.QUICK_TEMPLATES[parseInt(cb.value)].text);
+							if (selected.length === 0) {
+								Swal.showValidationMessage('Vui lòng chọn ít nhất 1 mẫu!');
+								return false;
+							}
+							return selected;
+						}
+					}).then(result => {
+						if (result.isConfirmed && result.value) {
+							// Ghép các mẫu được chọn thành 1 chuỗi, phân cách bằng ". "
+							const toAdd = result.value.join('. ');
+							this.addNote(toAdd);
+							this.toast('success', `Đã thêm ${result.value.length} mẫu vào nhận xét!`);
+						}
+					});
+				},
 
             generateMsg: function() {
                 if(!this.currentReportData) return;
@@ -974,10 +1080,10 @@
                 if(nx) msg += `- Nhận xét: ${nx}\n`;
                 
                 msg += `\n* Học phí tháng ${d.thang}: ${soBuoiTinhTien} buổi x ${this.formatMoney(d.hpBuoi)} = ${this.formatMoney(tienHoc)}.\n`;
-                if(d.daNop) msg += `(Trạng thái: Thầy đã nhận được học phí tháng này. Cảm ơn phụ huynh!)`;
+                if(d.daNop) msg += `(Phụ huynh đã hoàn thành việc nộp học phí tháng này.)\n`;
                 else msg += `Kính mong Quý phụ huynh hoàn thành việc nộp học phí cho con trước ngày 10 hằng tháng.\n\n`;
 				
-				msg += `Xin cảm ơn Quý phụ huynh đã luôn đồng hành cùng việc học tập của con!.`;
+				msg += `Xin cảm ơn Quý phụ huynh đã luôn đồng hành cùng việc học tập của con.`;
 				
                 document.getElementById('m4-final-msg').value = msg;
             },
@@ -1034,143 +1140,258 @@
             },
 			
 			// =========================================
+			// PHÂN TÍCH DỮ LIỆU HỌC SINH (JS ENGINE)
+			// =========================================
+
+			// Hàm phân tích số liệu và trả về object chứa:
+			//   - diemTot: danh sách điều học sinh làm tốt (mảng string)
+			//   - canCaiThien: danh sách điều cần cải thiện (mảng string)  
+			//   - mucDo: 'tot' | 'trungbinh' | 'cancogang'
+			//   - ghiChuGV: ghi chú của giáo viên (string)
+			analyzeStudent: function(d, ghiChuText) {
+				const diemTot = [];
+				const canCaiThien = [];
+
+				// --- 1. PHÂN TÍCH CHUYÊN CẦN ---
+				const soBuoiDiHoc = d.sCoMat + d.sMuon;
+				const tyLeDiHoc = d.tongBuoi > 0 ? soBuoiDiHoc / d.tongBuoi : 1;
+
+				if (tyLeDiHoc >= 0.9 && d.sVangKP === 0) {
+					diemTot.push("tham gia đầy đủ các buổi học");
+				} else if (tyLeDiHoc >= 0.75) {
+					diemTot.push("đi học tương đối đều");
+				}
+
+				if (d.sVangKP >= 2) {
+					canCaiThien.push("vắng không phép nhiều; phụ huynh nên quan tâm sát sao và nhắc nhở con đi học đầy đủ");
+				}
+				if (tyLeDiHoc < 0.75) {
+					canCaiThien.push("nghỉ khá nhiều, ảnh hưởng đến việc tiếp thu bài; phụ huynh nhắc nhở con đi học đầy đủ, chép lý thuyết và làm bài tập về nhà");
+				}
+				if (d.sMuon > 3) {
+					canCaiThien.push("hay đến muộn, cần đảm bảo đúng giờ để không bỏ lỡ bài giảng");
+				}
+
+				// --- 2. PHÂN TÍCH BÀI TẬP VỀ NHÀ ---
+				const tyLeBTVN = d.tongBuoi > 0 ? d.sBTVN / d.tongBuoi : 1;
+
+				if (tyLeBTVN >= 0.85) {
+					diemTot.push("hoàn thành bài tập đều đặn và nghiêm túc");
+				} else if (tyLeBTVN >= 0.7) {
+					diemTot.push("có ý thức hoàn thành phần lớn bài tập về nhà");
+				}
+
+				if (tyLeBTVN < 0.5) {
+					canCaiThien.push("bài tập về nhà hoàn thành chưa đều, cần cố gắng hơn");
+				} else if (tyLeBTVN < 0.75) {
+					canCaiThien.push("cần cố gắng hoàn thành bài tập về nhà đều hơn");
+				}
+
+				// --- 3. PHÂN TÍCH ĐIỂM SỐ ---
+				let diemArr = [];
+				if (d.diemText && d.diemText !== 'Không có') {
+					diemArr = d.diemText.split(/[;,]/)
+						.map(x => parseFloat(x.trim()))
+						.filter(x => !isNaN(x));
+				}
+
+				if (diemArr.length > 0) {
+					const diemTrungBinh = diemArr.reduce((a, b) => a + b, 0) / diemArr.length;
+					const soDiemThap = diemArr.filter(x => x < 5).length;
+					const soDiemCaoKha = diemArr.filter(x => x >= 8).length;
+
+					if (diemTrungBinh >= 8 && soDiemThap === 0) {
+						diemTot.push("kết quả làm bài tốt, nắm vững kiến thức");
+					} else if (diemTrungBinh >= 6.5) {
+						diemTot.push("kết quả làm bài ở mức khá, tiếp thu bài tốt");
+					}
+
+					if (soDiemThap >= 2) {
+						canCaiThien.push("có nhiều bài chưa đạt, cần chăm chỉ ôn luyện và rèn kỹ năng giải toán");
+					} else if (diemTrungBinh < 6) {
+						canCaiThien.push("kết quả làm bài chưa ổn định, cần ôn tập lý thuyết và tích cực làm bài tập");
+					} else if (soDiemThap === 1) {
+						canCaiThien.push("có bài chưa đạt điểm tốt, cần xem lại và củng cố phần kiến thức còn hổng");
+					}
+				} else {
+					// Chưa có điểm nào trong tháng
+					diemTot.push("tích cực tham gia học tập");
+				}
+
+				// --- 4. XÁC ĐỊNH MỨC ĐỘ TỔNG THỂ ---
+				let mucDo;
+				if (canCaiThien.length === 0) {
+					mucDo = 'tot';
+				} else if (canCaiThien.length <= 1 && diemTot.length >= 1) {
+					mucDo = 'trungbinh';
+				} else {
+					mucDo = 'cancogang';
+				}
+
+				// --- 5. GHI CHÚ GIÁO VIÊN ---
+				const ghiChuSach = ghiChuText
+					? ghiChuText.replace(/[\n\r]+/g, '; ').trim()
+					: '';
+
+				return { diemTot, canCaiThien, mucDo, ghiChu: ghiChuSach };
+			},
+			
+			// =========================================
             // TÍCH HỢP TRỢ LÝ AI
             // =========================================
             
-            // 1. Hàm gọi AI gợi ý nhận xét
-            suggestAI: async function() {
-                if(!this.currentReportData) return Swal.fire('Lỗi', 'Vui lòng chọn học sinh trước', 'error');
-                
-                // Kiểm tra xem đã lưu API Key chưa, nếu chưa thì yêu cầu nhập
-                let apiKey = localStorage.getItem('groqApiKey');
-                if(!apiKey) {
-                    const { value: inputKey } = await Swal.fire({
-                        title: 'Nhập Groq API Key',
-                        input: 'password',
-                        inputPlaceholder: 'Dán gsk_xxxx của bạn vào đây...',
-                        showCancelButton: true,
-                        confirmButtonText: 'Lưu Key',
-                        cancelButtonText: 'Hủy'
-                    });
-                    if (inputKey) {
-                        localStorage.setItem('groqApiKey', inputKey.trim());
-                        apiKey = inputKey.trim();
-                        this.toast('success', 'Đã lưu API Key thành công!');
-                    } else return;
-                }
+            // 1. Hàm gọi AI gợi ý nhận xét (phiên bản Hybrid: JS phân tích → AI diễn đạt)
+			suggestAI: async function() {
+				if(!this.currentReportData) return Swal.fire('Lỗi', 'Vui lòng chọn học sinh trước', 'error');
 
-                const d = this.currentReportData;
-                
-                // Thu thập nhật ký ghi chú hàng ngày của học sinh (nếu có) hiển thị trên UI
-                const ghiChuText = document.getElementById('m4-sghichu-list').innerText;
+				// Kiểm tra xem đã lưu API Key chưa, nếu chưa thì yêu cầu nhập
+				let apiKey = localStorage.getItem('groqApiKey');
+				if(!apiKey) {
+					const { value: inputKey } = await Swal.fire({
+						title: 'Nhập Groq API Key',
+						input: 'password',
+						inputPlaceholder: 'Dán gsk_xxxx của bạn vào đây...',
+						showCancelButton: true,
+						confirmButtonText: 'Lưu Key',
+						cancelButtonText: 'Hủy'
+					});
+					if (inputKey) {
+						localStorage.setItem('groqApiKey', inputKey.trim());
+						apiKey = inputKey.trim();
+						this.toast('success', 'Đã lưu API Key thành công!');
+					} else return;
+				}
 
-                // Thiết lập cấu trúc Prompt gửi cho AI
-                const prompt = `Bạn là trợ lý của giáo viên Toán dạy nhóm tại Việt Nam.
-				Nhiệm vụ của bạn là hỗ trợ giáo viên viết nhận xét cuối tháng gửi phụ huynh học sinh.
-				=== THÔNG TIN HỌC SINH ===
-				- Họ tên học sinh: ${d.ten}
-				- Chuyên cần: Đi học ${d.sCoMat + d.sMuon}/${d.tongBuoi} buổi (Trong đó Muộn: ${d.sMuon}, Nghỉ có phép: ${d.sVangPhep}, Nghỉ không phép: ${d.sVangKP}).
-				- Bài tập về nhà: Đã nộp ${d.sBTVN}/${d.tongBuoi} bài.
-				- Điểm các bài tập: ${d.diemText}.
-				- Ghi chú của giáo viên: "${ghiChuText.replace(/\n/g, '; ')}".
-				=== YÊU CẦU ===
-				Hãy viết 3 gợi ý nhận xét KHÁC NHAU. Ba nhận xét phải giống như giáo viên thật đang nhắn cho phụ huynh.
-				- Phương án 1: Nhẹ nhàng, tích cực. - Phương án 2: Cân bằng giữa động viên và góp ý. - Phương án 3: Nhấn mạnh điểm cần cải thiện nhưng vẫn lịch sự.
-				=== QUY TẮC ===
-				- Nhận xét nên gồm 2 đến 4 câu, gồm 3 ý chính: Ý 1 là Điều làm tốt; Ý 2 là Điều cần cải thiện; Ý 3 có thể là Định hướng cải thiện kết quả học tập hoặc Động viên hoặc Đề nghị phụ huynh phối hợp.
-				- Mỗi nhận xét dài khoảng 25 đến 60 từ.
-				- Không cần nhắc đến tất cả các thông tin, chỉ chọn những điểm nổi bật nhất. KHÔNG nhắc lại các số liệu từ thông tin. 
-				- Ưu tiên nhắc đến ghi chú của giáo viên (nếu có).
-				- Dùng đại từ "Con".
-				- Văn phong tự nhiên, gần gũi, đúng phong cách giáo viên.
-				- Không dùng những từ: "kém", "lười", "yếu".
-				=== VÍ DỤ ===
-				- Ví dụ 1: Con học tập nghiêm túc, tham gia đầy đủ các buổi học và hoàn thành tốt bài tập. Mong con tiếp tục duy trì tinh thần học tập này.
-				- Ví dụ 2: Con tiếp thu bài tốt, tuy nhiên cần duy trì việc đi học đầy đủ và đúng giờ để đạt kết quả tốt hơn.
-				- Ví dụ 3: Con tham gia học đầy đủ nhưng việc hoàn thành bài tập về nhà chưa đều. Mong Quý phụ huynh nhắc nhở con ôn tập và hoàn thành bài tập sau mỗi buổi học.
-				- Ví dụ 4: Tháng này con nghỉ học tương đối nhiều nên ảnh hưởng đến việc tiếp thu kiến thức. Mong Quý phụ huynh quan tâm, nhắc nhở để con tham gia học đầy đủ hơn.
-				- Ví dụ 5: Con có ý thức tham gia học đầy đủ, tuy nhiên cần rèn luyện thêm kỹ năng làm bài và ôn tập kiến thức để cải thiện kết quả.
-				
-				BẮT BUỘC TRẢ VỀ định dạng JSON thuần túy (không kèm markdown \`\`\`json) có cấu trúc chính xác sau:
-				{
-					"goi_y_1": "Nhẹ nhàng, tích cực...",
-					"goi_y_2": "Cân bằng giữa động viên và góp ý...",
-					"goi_y_3": "Nhận xét nhắc nhở điểm yếu, chỉ ra phần cần cố gắng rèn luyện tập trung..."
-				}`;
+				const d = this.currentReportData;
 
-                this.setLoading(true, "AI đang phân tích số liệu học tập...");
+				// BƯỚC 1: JS phân tích dữ liệu trước
+				const ghiChuText = document.getElementById('m4-sghichu-list').innerText;
+				const phanTich = this.analyzeStudent(d, ghiChuText);
 
-                try {
-                    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${apiKey}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            model: "openai/gpt-oss-120b",
-                            messages: [
-                                { role: "system", content: "You are a helpful assistant that only outputs clean JSON." },
-                                { role: "user", content: prompt }
-                            ],
-                            response_format: { type: "json_object" }, // Ép AI trả về JSON chuẩn
-                            temperature: 0.6
-                        })
-                    });
+				// Chuyển mảng thành chuỗi có dấu gạch đầu dòng để đưa vào prompt
+				const diemTotStr = phanTich.diemTot.length > 0
+					? phanTich.diemTot.map(x => `- ${x}`).join('\n')
+					: '- (Chưa có điểm nổi bật rõ ràng trong tháng này)';
 
-                    // Xử lý lỗi xác thực API Key
-                    if (response.status === 401) {
-                        localStorage.removeItem('groqApiKey');
-                        throw new Error("API Key không hợp lệ hoặc đã bị khóa. Vui lòng bấm thử lại để nhập lại Key.");
-                    }
+				const canCaiThienStr = phanTich.canCaiThien.length > 0
+					? phanTich.canCaiThien.map(x => `- ${x}`).join('\n')
+					: '- (Không có điểm nào cần nhắc nhở đặc biệt)';
 
-                    const result = await response.json();
-                    this.setLoading(false);
+				const mucDoStr = {
+					'tot': 'Học sinh học tốt trong tháng này',
+					'trungbinh': 'Học sinh ở mức khá, có điểm tốt nhưng cũng có điểm cần cải thiện',
+					'cancogang': 'Học sinh cần cố gắng hơn, có nhiều điểm cần nhắc nhở'
+				}[phanTich.mucDo];
 
-                    // Phân tích cú pháp JSON nhận về từ AI
-                    const aiContent = JSON.parse(result.choices[0].message.content);
+				// BƯỚC 2: Xây dựng prompt gọn, rõ ràng – AI chỉ lo diễn đạt
+				const prompt = `Bạn là trợ lý giúp giáo viên Toán viết nhận xét cuối tháng gửi phụ huynh.
 
-                    // Hiện hộp thoại Popup hiển thị 3 phương án để giáo viên chọn
-                    Swal.fire({
-                        title: 'Gợi ý nhận xét từ AI',
-                        text: 'Chọn 1 phương án dưới đây để điền nhanh vào khung nhận xét:',
-                        icon: 'info',
-                        width: '600px',
-                        showCancelButton: true,
-                        cancelButtonText: 'Đóng',
-                        showConfirmButton: false,
-                        html: `
-                            <div class="flex flex-col gap-3 text-left text-xs mt-4">
-                                <button onclick="app.applyAiComment('${aiContent.goi_y_1.replace(/'/g, "\\'")}')" class="p-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded text-green-800 font-medium text-left transition flex flex-col">
-                                    <span class="font-bold text-[10px] text-green-600 uppercase mb-1">🟢 Phương án 1: </span>
-                                    <span>"${aiContent.goi_y_1}"</span>
-                                </button>
-                                <button onclick="app.applyAiComment('${aiContent.goi_y_2.replace(/'/g, "\\'")}')" class="p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded text-gray-800 font-medium text-left transition flex flex-col">
-                                    <span class="font-bold text-[10px] text-gray-500 uppercase mb-1">🟡 Phương án 2: </span>
-                                    <span>"${aiContent.goi_y_2}"</span>
-                                </button>
-                                <button onclick="app.applyAiComment('${aiContent.goi_y_3.replace(/'/g, "\\'")}')" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded text-red-800 font-medium text-left transition flex flex-col">
-                                    <span class="font-bold text-[10px] text-red-600 uppercase mb-1">🔴 Phương án 3: </span>
-                                    <span>"${aiContent.goi_y_3}"</span>
-                                </button>
-                            </div>
-                        `
-                    });
+			=== ĐÁNH GIÁ CỦA GIÁO VIÊN (đã phân tích sẵn) ===
+			Tên học sinh: ${d.ten}
+			Mức độ tổng thể: ${mucDoStr}
 
-                } catch (error) {
-                    this.setLoading(false);
-                    Swal.fire('Lỗi AI', error.message, 'error');
-                }
-            },
+			Điều làm tốt:
+			${diemTotStr}
+
+			Điều cần cải thiện:
+			${canCaiThienStr}
+
+			Ghi chú đặc biệt của giáo viên (ưu tiên nhắc đến nếu có): "${phanTich.ghiChu || 'Không có'}"
+
+			=== NHIỆM VỤ ===
+			Hãy viết 3 nhận xét KHÁC NHAU về giọng điệu, dựa ĐÚNG vào đánh giá trên:
+			- Phương án 1 (Nhẹ nhàng, tích cực): Nhấn mạnh điểm tốt, nhắc nhở khéo léo.
+			- Phương án 2 (Cân bằng): Ghi nhận điểm tốt và nêu rõ điều cần cải thiện.
+			- Phương án 3 (Thẳng thắn, lịch sự): Nêu điểm tốt, Tập trung nhắc nhở, đề nghị phụ huynh phối hợp.
+
+			=== QUY TẮC BẮT BUỘC ===
+			- Mỗi nhận xét 2-5 câu, khoảng 35-65 từ.
+			- Dùng đại từ "Con", văn phong như giáo viên nhắn tin cho phụ huynh.
+			- KHÔNG nhắc lại số liệu cụ thể (bao nhiêu buổi, bao nhiêu bài...).
+			- KHÔNG dùng các từ: "kém", "lười", "yếu", "tệ".
+			- Nếu có ghi chú đặc biệt của giáo viên thì ưu tiên đưa vào nhận xét.
+
+			BẮT BUỘC trả về JSON thuần túy (không có markdown \`\`\`json), cấu trúc:
+			{
+			  "goi_y_1": "...",
+			  "goi_y_2": "...",
+			  "goi_y_3": "..."
+			}`;
+
+				this.setLoading(true, "AI đang soạn nhận xét...");
+
+				try {
+					const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+						method: "POST",
+						headers: {
+							"Authorization": `Bearer ${apiKey}`,
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							model: "openai/gpt-oss-120b",
+							messages: [
+								{ role: "system", content: "Bạn chỉ được phép trả về JSON thuần túy, không có markdown hay giải thích thêm." },
+								{ role: "user", content: prompt }
+							],
+							response_format: { type: "json_object" },
+							temperature: 0.65
+						})
+					});
+
+					if (response.status === 401) {
+						localStorage.removeItem('groqApiKey');
+						throw new Error("API Key không hợp lệ hoặc đã bị khóa. Vui lòng bấm thử lại để nhập Key mới.");
+					}
+
+					const result = await response.json();
+					this.setLoading(false);
+
+					const aiContent = JSON.parse(result.choices[0].message.content);
+
+					Swal.fire({
+						title: 'Gợi ý nhận xét từ AI',
+						text: 'Chọn 1 phương án dưới đây để điền nhanh vào khung nhận xét:',
+						icon: 'info',
+						width: '600px',
+						showCancelButton: true,
+						cancelButtonText: 'Đóng',
+						showConfirmButton: false,
+						html: `
+							<div class="flex flex-col gap-3 text-left text-xs mt-4">
+								<button onclick="app.applyAiComment('${aiContent.goi_y_1.replace(/'/g, "\\'")}')" class="p-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded text-green-800 font-medium text-left transition flex flex-col">
+									<span class="font-bold text-[10px] text-green-600 uppercase mb-1">🟢 Phương án 1</span>
+									<span>"${aiContent.goi_y_1}"</span>
+								</button>
+								<button onclick="app.applyAiComment('${aiContent.goi_y_2.replace(/'/g, "\\'")}')" class="p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded text-gray-800 font-medium text-left transition flex flex-col">
+									<span class="font-bold text-[10px] text-gray-500 uppercase mb-1">🟡 Phương án 2</span>
+									<span>"${aiContent.goi_y_2}"</span>
+								</button>
+								<button onclick="app.applyAiComment('${aiContent.goi_y_3.replace(/'/g, "\\'")}')" class="p-3 bg-red-50 hover:bg-red-100 border border-red-200 rounded text-red-800 font-medium text-left transition flex flex-col">
+									<span class="font-bold text-[10px] text-red-600 uppercase mb-1">🔴 Phương án 3</span>
+									<span>"${aiContent.goi_y_3}"</span>
+								</button>
+							</div>
+						`
+					});
+
+				} catch (error) {
+					this.setLoading(false);
+					Swal.fire('Lỗi AI', error.message, 'error');
+				}
+			},
 
             // 2. Hàm điền nhận xét đã chọn vào Textarea
             applyAiComment: function(commentText) {
-                const nx = document.getElementById('m4-nhanxet');
-                nx.value = commentText;
-                this.generateMsg(); // Tự động cập nhật tin nhắn xem trước
-                Swal.close(); // Đóng popup
-                this.toast('success', 'Đã áp dụng nhận xét AI!');
-            },
+				const nx = document.getElementById('m4-nhanxet');
+				if (nx.value && nx.value.trim() !== '') {
+					nx.value = nx.value.trimEnd() + '- ' + commentText;
+				} else {
+					nx.value = commentText;
+				}
+				this.generateMsg();
+				Swal.close();
+				this.toast('success', 'Đã thêm nhận xét AI!');
+			},
 
             // 3. Hàm xóa API Key cũ để nhập Key mới
             clearGroqKey: function() {
