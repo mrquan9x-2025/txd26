@@ -904,18 +904,31 @@
                 // Tính toán thông số điểm danh thực tế
                 const buoiHoc = this.data.DiemDanh.filter(d => d.MaHS === maHS && d.NgayHoc.startsWith(monthStr));
                 let sCoMat=0, sMuon=0, sVangKP=0, sVangPhep=0, sBTVN=0;
+				// Biến đếm BUỔI (để hiển thị) – luôn cộng 1 mỗi bản ghi
+				let bCoMat=0, bMuon=0, bVangKP=0, bVangPhep=0, bBTVN=0, tongBuoiThuc=0;
+				
                 let diemArr = [];
                 let ghiChuHtml = ''; // Thêm biến lưu chuỗi ghi chú buổi học
 
                 buoiHoc.forEach(b => {
-				    const stt = b.TrangThai.toString();
-				    const soca = parseFloat(b.SoCa || 1);
-				    if(stt==="1") sCoMat += soca;
-				    if(stt==="2") sMuon += soca;
-				    if(stt==="3") sVangKP += soca;
-				    if(stt==="4") sVangPhep += soca;
-                    
-                    if(b.BTVN_HoanThanh === true || b.BTVN_HoanThanh === "TRUE") sBTVN++;
+				const stt = b.TrangThai.toString();
+				const soca = parseFloat(b.SoCa || 1);
+
+				// Đếm CA (để tính học phí)
+				if(stt==="1") sCoMat += soca;
+				if(stt==="2") sMuon += soca;
+				if(stt==="3") sVangKP += soca;
+				if(stt==="4") sVangPhep += soca;
+
+				// Đếm BUỔI (để hiển thị)
+				tongBuoiThuc++;
+				if(stt==="1") bCoMat++;
+				if(stt==="2") bMuon++;
+				if(stt==="3") bVangKP++;
+				if(stt==="4") bVangPhep++;
+
+				if(b.BTVN_HoanThanh === true || b.BTVN_HoanThanh === "TRUE") sBTVN++;
+				
                     if(b.DiemBTVN) diemArr.push(b.DiemBTVN); 
 
                     // LOGIC GOM GHI CHÚ BUỔI HỌC
@@ -935,12 +948,13 @@
                     ghiChuBox.classList.add('hidden'); // Không có thì ẩn đi cho gọn
                 }
 
-                const tongBuoi = sCoMat + sMuon + sVangKP + sVangPhep;
-                
-                const soBuoiDiHoc = sCoMat + sMuon; // Tổng số buổi thực tế có đi học (Có mặt + Muộn)
-				document.getElementById('m4-ssobuoi').innerText = `${soBuoiDiHoc}/${tongBuoi}`;
-				document.getElementById('m4-sbtvn').innerText = `${sBTVN}/${tongBuoi}`;
-				document.getElementById('m4-schuyencan').innerText = `Có mặt (${sCoMat}), Muộn (${sMuon}), Nghỉ P (${sVangPhep}), Nghỉ KP (${sVangKP})`;
+                const tongBuoi = sCoMat + sMuon + sVangKP + sVangPhep; // tổng CA (dùng tính tiền)
+
+				const bDiHoc = bCoMat + bMuon; // số BUỔI có đi học
+				document.getElementById('m4-ssobuoi').innerText = `${bDiHoc}/${tongBuoiThuc}`;
+				document.getElementById('m4-sbtvn').innerText = `${sBTVN}/${tongBuoiThuc}`;
+				document.getElementById('m4-schuyencan').innerText = `Có mặt (${bCoMat}), Muộn (${bMuon}), Nghỉ P (${bVangPhep}), Nghỉ KP (${bVangKP})`;
+				
                 document.getElementById('m4-sdiem').innerText = diemArr.length > 0 ? diemArr.join('; ') : 'Chưa có';
 
                 const hsInfo = this.data.HocSinh.find(h => h.MaHS === maHS);
@@ -948,7 +962,10 @@
                     maHS: maHS,
                     ten: tenHS,
                     thang: monthStr.split('-').reverse().join('/'), 
-                    sCoMat, sMuon, sVangKP, sVangPhep, tongBuoi, sBTVN,
+                    
+					sCoMat, sMuon, sVangKP, sVangPhep, tongBuoi, sBTVN,
+					bCoMat, bMuon, bVangKP, bVangPhep, bBTVN, tongBuoiThuc,
+					
                     diemText: diemArr.length > 0 ? diemArr.join('; ') : 'Không có',
                     hpBuoi: hsInfo ? parseInt(hsInfo.HocPhiBuoi) : 0,
                     daNop: this.data.ThanhToan.find(t => t.ID_ThanhToan === `${maHS}_${monthStr}`)?.NgayNop ? true : false,
@@ -1071,16 +1088,18 @@
                 const tienHoc = soBuoiTinhTien * d.hpBuoi;
                 
                 let msg = `Kính gửi Quý phụ huynh học sinh ${d.ten},\nLớp Toán xin gửi tới Quý phụ huynh báo cáo tình hình học tập của con trong tháng ${d.thang}:\n\n`;
-                msg += `- Chuyên cần: Đi học ${d.sCoMat + d.sMuon}/${d.tongBuoi} buổi.\n`;
-                if(d.sMuon > 0 || d.sVangPhep > 0 || d.sVangKP > 0) {
-                    msg += `  (Chi tiết: Đi muộn ${d.sMuon} buổi, Nghỉ có phép ${d.sVangPhep} buổi, Nghỉ K.phép ${d.sVangKP} buổi).\n`;
-                }
-                msg += `- Bài tập về nhà: Đã hoàn thành ${d.sBTVN}/${d.tongBuoi} bài.\n`;
+               
+			   msg += `- Chuyên cần: Đi học ${d.bCoMat + d.bMuon}/${d.tongBuoiThuc} buổi.\n`;
+				if(d.bMuon > 0 || d.bVangPhep > 0 || d.bVangKP > 0) {
+					msg += `  (Chi tiết: Đi muộn ${d.bMuon} buổi, Nghỉ có phép ${d.bVangPhep} buổi, Nghỉ K.phép ${d.bVangKP} buổi).\n`;
+				}
+				msg += `- Bài tập về nhà: Đã hoàn thành ${d.sBTVN}/${d.tongBuoiThuc} bài.\n`;
+			   
                 msg += `- Điểm các bài tập trong tháng: ${d.diemText}.\n`;
                 
                 if(nx) msg += `- Nhận xét: ${nx}\n`;
                 
-                msg += `\n* Học phí tháng ${d.thang}: ${soBuoiTinhTien} buổi x ${this.formatMoney(d.hpBuoi)} = ${this.formatMoney(tienHoc)}.\n`;
+                msg += `\n* Học phí tháng ${d.thang}: ${soBuoiTinhTien} ca x ${this.formatMoney(d.hpBuoi)} = ${this.formatMoney(tienHoc)}.\n`;
                 if(d.daNop) msg += `(Phụ huynh đã hoàn thành việc nộp học phí tháng này.)\n`;
                 else msg += `Kính mong Quý phụ huynh hoàn thành việc nộp học phí cho con trước ngày 10 hằng tháng.\n\n`;
 				
