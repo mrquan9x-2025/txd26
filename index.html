@@ -908,11 +908,12 @@
                 let ghiChuHtml = ''; // Thêm biến lưu chuỗi ghi chú buổi học
 
                 buoiHoc.forEach(b => {
-                    const stt = b.TrangThai.toString();
-                    if(stt==="1") sCoMat++;
-                    if(stt==="2") sMuon++;
-                    if(stt==="3") sVangKP++;
-                    if(stt==="4") sVangPhep++;
+				    const stt = b.TrangThai.toString();
+				    const soca = parseFloat(b.SoCa || 1);
+				    if(stt==="1") sCoMat += soca;
+				    if(stt==="2") sMuon += soca;
+				    if(stt==="3") sVangKP += soca;
+				    if(stt==="4") sVangPhep += soca;
                     
                     if(b.BTVN_HoanThanh === true || b.BTVN_HoanThanh === "TRUE") sBTVN++;
                     if(b.DiemBTVN) diemArr.push(b.DiemBTVN); 
