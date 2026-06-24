@@ -1084,7 +1084,22 @@
                 const d = this.currentReportData;
                 const nx = document.getElementById('m4-nhanxet').value;
                 
-                const soBuoiTinhTien = d.sCoMat + d.sMuon + d.sVangKP;
+                // TỪ ĐIỂN TÀI KHOẢN NGÂN HÀNG THEO TRỢ GIẢNG
+                const bankAccounts = {
+                    "H": "Ngân hàng SHB, Nguyễn Thị Thu Huyền, STK: 1011727672",
+                    "Q": "Ngân hàng Vietinbank, Phạm Thế Quân, STK: 107005093516",
+                    "DEFAULT": "Ngân hàng Vietinbank, Phạm Thế Quân, STK: 107005093516" // Dành cho học sinh không gắn trợ giảng
+                };
+
+                // Lấy thông tin trợ giảng từ dữ liệu RAM
+                const hsInfo = this.data.HocSinh.find(h => h.MaHS === d.maHS);
+                const troGiang = hsInfo ? (hsInfo.TroGiang || '').toUpperCase().trim() : '';
+                
+                // Trích xuất số tài khoản tương ứng (nếu TroGiang không có trong từ điển thì lấy DEFAULT)
+                const stkInfo = bankAccounts[troGiang] || bankAccounts["DEFAULT"];
+
+				// Tính tiền học				
+				const soBuoiTinhTien = d.sCoMat + d.sMuon + d.sVangKP;
                 const tienHoc = soBuoiTinhTien * d.hpBuoi;
                 
                 let msg = `Kính gửi Quý phụ huynh học sinh ${d.ten},\nLớp Toán xin gửi tới Quý phụ huynh báo cáo tình hình học tập của con trong tháng ${d.thang}:\n\n`;
@@ -1101,7 +1116,7 @@
                 
                 msg += `\n* Học phí tháng ${d.thang}: ${soBuoiTinhTien} ca x ${this.formatMoney(d.hpBuoi)} = ${this.formatMoney(tienHoc)}.\n`;
                 if(d.daNop) msg += `(Phụ huynh đã hoàn thành việc nộp học phí tháng này.)\n`;
-                else msg += `Kính mong Quý phụ huynh hoàn thành việc nộp học phí cho con trước ngày 10 hằng tháng.\n\n`;
+                else msg += `Kính mong Quý phụ huynh hoàn thành việc nộp học phí cho con trước ngày 10 hằng tháng qua ${stkInfo}.\n\n`;
 				
 				msg += `Xin cảm ơn Quý phụ huynh đã luôn đồng hành cùng việc học tập của con.`;
 				
