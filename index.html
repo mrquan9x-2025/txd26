@@ -317,7 +317,7 @@
     <script>
         // =========================================
         // THẦY CÔ DÁN LINK WEB APP VÀO ĐÂY:
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbz6jdc_5xkVHpKW5gKVLnFNT54fWEx-KsYgVvfgoCGdHK4IUaW2wMY-eW9KXgw5ykPMhQ/exec"; 
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzD1KqAoptYFNwCeY3MlVBVwNomKu021eTl5j8WFLc730NCmFwyAjeq0gAfDP-4mTvCpg/exec"; 
         // =========================================
 
         const app = {
@@ -346,6 +346,44 @@
                 const d = new Date();
                 return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
             },
+			
+			// KIỂM TRA NỢ HỌC PHÍ THÁNG TRƯỚC
+            getCurrentMonthStr: function() { 
+                const d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            },
+
+            // THÊM HÀM NÀY VÀO ĐỂ HỆ THỐNG BIẾT THÁNG TRƯỚC LÀ THÁNG NÀO
+            getPreviousMonthStr: function(monthStr) {
+                if (!monthStr) return '';
+                const parts = monthStr.split('-');
+                let year = parseInt(parts[0]);
+                let month = parseInt(parts[1]);
+                month--;
+                if (month === 0) {
+                    month = 12;
+                    year--;
+                }
+                return `${year}-${String(month).padStart(2, '0')}`;
+            },
+
+			
+			checkNoHocPhiThangTruoc: function(maHS, currentMonthStr) {
+                if (!currentMonthStr) return false;
+                const prevMonth = this.getPreviousMonthStr(currentMonthStr);
+
+                // 1. Kiểm tra xem tháng trước có đi học buổi nào tính tiền không
+                const buoiHocThangTruoc = this.data.DiemDanh.filter(d => d.MaHS === maHS && d.NgayHoc.startsWith(prevMonth));
+                let soCaTinhTien = 0;
+                buoiHocThangTruoc.forEach(b => { if(b.TrangThai !== "4" && b.MaHS !== "CHUNG") soCaTinhTien += parseFloat(b.SoCa || 1); });
+
+                // Nếu tháng trước nghỉ 100% (hoặc chưa nhập học) -> Không có nợ
+                if (soCaTinhTien === 0) return false;
+
+                // 2. Kiểm tra xem đã có phiếu thu tháng trước chưa
+                const phieuThu = this.data.ThanhToan.find(t => t.ID_ThanhToan === `${maHS}_${prevMonth}`);
+                return !(phieuThu && phieuThu.NgayNop); // Trả về true nếu CHƯA nộp
+            },
             
 			// BỘ LỌC THÔNG MINH: QUYẾT ĐỊNH ẨN/HIỆN HỌC SINH THEO THỜI GIAN VÀ TRẠNG THÁI
             shouldShowStudent: function(hs, monthStr) {
@@ -362,19 +400,22 @@
                 const isActive = hs.TrangThai != "0" && hs.TrangThai !== 0; 
                 return isActive || recordsInMonth.length > 0;
             },
-			// TỰ ĐỘNG ĐỔI MÀU TÊN VÀ HIỂN THỊ ICON TRỢ GIẢNG PHÙ HỢP
-            getStudentNameStyled: function(hs) {
+			// TỰ ĐỘNG ĐỔI MÀU TÊN, HIỂN THỊ ICON TRỢ GIẢNG VÀ CẢNH BÁO NỢ
+            getStudentNameStyled: function(hs, monthStr = null) {
                 const tg = (hs.TroGiang || '').toUpperCase().trim();
+                
+                // Kiểm tra nợ nếu có truyền biến tháng
+                const isNoTien = monthStr ? this.checkNoHocPhiThangTruoc(hs.MaHS, monthStr) : false;
+                const noIcon = isNoTien ? `<i class="fas fa-exclamation-circle text-red-500 ml-1 animate-pulse" title="Chưa nộp học phí tháng trước!"></i>` : '';
+
                 if (tg === 'H') {
-                    // Trợ giảng H: Chữ xanh dương + Nhãn H xanh dương
-                    return `<span class="text-blue-600 font-bold flex items-center gap-1">${hs.TenHS} <span class="bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm" title="Trợ giảng H phụ trách">H</span></span>`;
+                    return `<span class="text-blue-600 font-bold flex items-center gap-1">${hs.TenHS} <span class="bg-blue-600 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm" title="Trợ giảng H">H</span>${noIcon}</span>`;
                 } else if (tg === 'Q') {
-                    // Trợ giảng Q: Chữ đen/xám đậm + Nhãn Q đen
-                    return `<span class="text-slate-900 font-bold flex items-center gap-1">${hs.TenHS} <span class="bg-slate-800 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm" title="Trợ giảng Q phụ trách">Q</span></span>`;
+                    return `<span class="text-slate-900 font-bold flex items-center gap-1">${hs.TenHS} <span class="bg-slate-800 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shadow-sm" title="Trợ giảng Q">Q</span>${noIcon}</span>`;
                 }
-                // Không có trợ giảng phụ trách: Chữ xám thường
-                return `<span class="text-gray-700">${hs.TenHS}</span>`;
+                return `<span class="text-gray-700 flex items-center">${hs.TenHS}${noIcon}</span>`;
             },
+			
 			// TỰ ĐỘNG SINH MÃ HỌC SINH TIẾP THEO (Dạng HS001, HS002...)
             generateNextMaHS: function() {
                 let maxIdNum = 0;
@@ -782,7 +823,7 @@
 
                     tbody.innerHTML += `
                         <tr class="hover:bg-gray-50 text-xs">
-                            <td class="p-3 font-medium text-gray-800">${this.getStudentNameStyled(hs)}</td>
+                            <td class="p-3 font-medium text-gray-800">${this.getStudentNameStyled(hs, monthStr)}</td>
                             <td class="p-3 text-gray-500">${tenLop}</td>
                             <td class="p-3 text-center font-bold">${soCaTinhTien}</td>
                             <td class="p-3 text-right text-red-600 font-bold">${this.formatMoney(tienHoc)}</td>
@@ -877,7 +918,7 @@
 
                     ul.innerHTML += `
                         <li class="p-3 hover:bg-teal-50 cursor-pointer border-b flex justify-between items-center group transition" onclick="app.selectReportHS('${hs.MaHS}', '${hs.TenHS}', '${monthStr}')">
-                            <span class="font-medium text-gray-700 group-hover:text-teal-700 text-xs">${this.getStudentNameStyled(hs)}</span>
+                            <span class="font-medium text-gray-700 group-hover:text-teal-700 text-xs">${this.getStudentNameStyled(hs, monthStr)}</span>
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${statusText}</span>
                         </li>
                     `;
