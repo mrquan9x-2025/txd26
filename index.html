@@ -1169,8 +1169,7 @@
                 if(!this.currentReportData) return;
                 const d = this.currentReportData;
                 
-                // Luôn cập nhật lại nội dung tin nhắn trước khi lưu
-                this.generateMsg();
+                // Đọc trực tiếp nội dung đang hiển thị – giữ nguyên mọi chỉnh sửa thủ công
                 const finalMsg = document.getElementById('m4-final-msg').value;
                 const nhanXet = document.getElementById('m4-nhanxet').value;
 
