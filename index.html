@@ -219,15 +219,19 @@
                 <!-- M4: BÁO CÁO (QUY TRÌNH DUYỆT - GỬI) -->
                 <!-- ============================================== -->
                 <div id="view-m4" class="view-section hidden">
-                    <div class="flex gap-2 mb-6 border-2 border-teal-800 p-1 rounded inline-flex">
-                        <select id="m4-class" class="p-1 outline-none font-bold text-gray-700 bg-transparent border-r-2 border-gray-300" onchange="app.renderM4Students()">
-                            <option value="">-- Chọn Lớp --</option>
-                        </select>
-                        <span class="px-2 font-bold text-teal-800 flex items-center">Tháng:</span>
-                        <input type="month" id="m4-month" class="p-1 outline-none font-bold text-gray-700 bg-transparent" onchange="app.renderM4Students()">
-                    </div>
+				<div class="flex gap-2 mb-6 border-2 border-teal-800 p-1 rounded inline-flex">
+					<select id="m4-class" class="p-1 outline-none font-bold text-gray-700 bg-transparent border-r-2 border-gray-300" onchange="app.renderM4Students()">
+						<option value="">-- Chọn Lớp --</option>
+					</select>
+					<span class="px-2 font-bold text-teal-800 flex items-center">Tháng:</span>
+					<input type="month" id="m4-month" class="p-1 outline-none font-bold text-gray-700 bg-transparent" onchange="app.renderM4Students()">
+				</div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				<button onclick="app.exportReportCSV()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 px-4 rounded transition inline-flex items-center gap-2 shadow-sm">
+					<i class="fas fa-file-csv"></i> Xuất báo cáo
+				</button>
+
+				        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <!-- Cột danh sách học sinh có nhãn Trạng thái -->
                         <div class="border rounded shadow-sm bg-white overflow-hidden">
                             <h3 class="bg-gray-100 p-3 font-bold text-gray-700 border-b text-sm">DANH SÁCH DUYỆT BÁO CÁO</h3>
@@ -1583,7 +1587,8 @@
             },
 			
 			
-			quickAddStudent: async function() {
+// 2. Hàm thêm học sinh mới (Tự động cấp mã HS00X)
+            quickAddStudent: async function() {
                 if(this.data.LopHoc.length === 0) return Swal.fire('Lỗi', 'Vui lòng tạo lớp trước!', 'error');
                 const classOpts = this.data.LopHoc.map(l => `<option value="${l.MaLop}">${l.TenLop}</option>`).join('');
                 
@@ -1599,14 +1604,14 @@
                           `</select>`,
                     focusConfirm: false,
                     preConfirm: () => {
-					const nextMaHS = app.generateNextMaHS(); // Tự động sinh mã tiếp theo (VD: HS008)
+                        const nextMaHS = app.generateNextMaHS(); 
                         return {
                             MaHS: nextMaHS,
-							TenHS: document.getElementById('swal-tenhs').value,
+                            TenHS: document.getElementById('swal-tenhs').value,
                             MaLop: document.getElementById('swal-malop-hs').value,
                             HocPhiBuoi: document.getElementById('swal-hocphi').value,
                             TroGiang: document.getElementById('swal-trogiang').value,
-							TrangThai: "1"
+                            TrangThai: "1"
                         }
                     }
                 });
@@ -1618,37 +1623,134 @@
                     this.toast('success', 'Thêm học sinh thành công!');
                     this.renderM1(); 
                 }
-            }
-        };
+            }, // <=== ĐÃ SỬA LỖI Ở ĐÂY: CHỈ DÙNG DẤU `},` THAY VÌ `};`
 
-        // Mobile menu toggle
+
+            // =========================================
+            // TÍNH NĂNG XUẤT BÁO CÁO LỚP RA FILE CSV
+            // =========================================
+            exportReportCSV: function() {
+                const maLop = document.getElementById('m4-class').value;
+                const monthStr = document.getElementById('m4-month').value;
+                
+                if(!maLop || !monthStr) {
+                    return Swal.fire('Lỗi', 'Vui lòng chọn Lớp và Tháng để xuất báo cáo.', 'warning');
+                }
+
+                // Lọc học sinh của lớp đang hoạt động trong tháng
+                const hsLop = this.data.HocSinh.filter(hs => hs.MaLop === maLop && this.shouldShowStudent(hs, monthStr));
+                if(hsLop.length === 0) {
+                    return Swal.fire('Thông báo', 'Lớp này không có dữ liệu học sinh trong tháng.', 'info');
+                }
+
+                const tenLop = this.data.LopHoc.find(l => l.MaLop === maLop)?.TenLop || maLop;
+
+                const escapeCSV = (str) => {
+                    if (str === null || str === undefined) return '""';
+                    return '"' + String(str).replace(/"/g, '""').replace(/\n/g, ' ') + '"';
+                };
+
+                let csvContent = "STT,Họ và Tên,Số buổi học,Chi tiết vắng/muộn,BTVN hoàn thành,Điểm các bài,Nhật ký ghi chú,Nhận xét của GV,Học phí,Trạng thái duyệt\n";
+
+                hsLop.forEach((hs, index) => {
+                    const buoiHoc = this.data.DiemDanh.filter(d => d.MaHS === hs.MaHS && d.NgayHoc.startsWith(monthStr));
+                    
+                    let sNgayCoMat=0, sNgayMuon=0, sNgayVangKP=0, sNgayVangPhep=0, sNgayBTVN=0;
+                    let tongCaTinhTien = 0; 
+                    let diemArr = [];
+                    let ghiChuArr = [];
+
+                    buoiHoc.forEach(b => {
+                        const stt = b.TrangThai.toString();
+                        if(stt !== "4") tongCaTinhTien += parseFloat(b.SoCa || 1);
+
+                        if(stt==="1") sNgayCoMat++;
+                        if(stt==="2") sNgayMuon++;
+                        if(stt==="3") sNgayVangKP++;
+                        if(stt==="4") sNgayVangPhep++;
+                        
+                        if(b.BTVN_HoanThanh === true || b.BTVN_HoanThanh === "TRUE") sNgayBTVN++;
+                        if(b.DiemBTVN) diemArr.push(b.DiemBTVN); 
+                        if(b.GhiChu && b.GhiChu.trim() !== "") ghiChuArr.push(`${this.formatDateDDMM(b.NgayHoc)}: ${b.GhiChu}`);
+                    });
+
+                    const tongSoNgay = sNgayCoMat + sNgayMuon + sNgayVangKP + sNgayVangPhep;
+                    const soNgayDiHoc = sNgayCoMat + sNgayMuon;
+                    
+                    const hpBuoi = parseInt(hs.HocPhiBuoi) || 0;
+                    const tienHoc = tongCaTinhTien * hpBuoi;
+
+                    const idBaoCao = `${hs.MaHS}_${monthStr}`;
+                    const bcCu = this.data.BaoCaoThang.find(b => b.ID_BaoCao === idBaoCao) || {};
+                    const nhanXetText = bcCu.NhanXet || "";
+                    const trangThaiDuyet = bcCu.TrangThai || "Chưa viết";
+
+                    let row = [
+                        index + 1,
+                        escapeCSV(hs.TenHS),
+                        escapeCSV(`${soNgayDiHoc}/${tongSoNgay}`),
+                        escapeCSV(`Muộn: ${sNgayMuon}, Nghỉ P: ${sNgayVangPhep}, Nghỉ KP: ${sNgayVangKP}`),
+                        escapeCSV(`${sNgayBTVN}/${tongSoNgay}`),
+                        escapeCSV(diemArr.join('; ')),
+                        escapeCSV(ghiChuArr.join(' | ')),
+                        escapeCSV(nhanXetText),
+                        escapeCSV(tienHoc),
+                        escapeCSV(trangThaiDuyet)
+                    ];
+                    
+                    csvContent += row.join(",") + "\n";
+                });
+
+                const BOM = "\uFEFF"; 
+                const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+                
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `BaoCao_${tenLop}_${monthStr}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                this.toast('success', 'Đã xuất file báo cáo thành công!');
+            }
+
+        }; // <======== ĐÂY LÀ NƠI DUY NHẤT ĐƯỢC PHÉP ĐÓNG ĐỐI TƯỢNG APP
+
+
+        // ======================================================================
+        // CÁC SỰ KIỆN ĐỘC LẬP
+        // ======================================================================
+
+        // 1. Mobile menu toggle
         document.getElementById('mobile-menu-btn').addEventListener('click', () => {
-		const sidebar = document.getElementById('sidebar');
-		const overlay = document.getElementById('sidebar-overlay');
-		const isOpen = !sidebar.classList.contains('hidden');
-		if (isOpen) {
-        // Đóng
-        sidebar.classList.add('hidden');
-        sidebar.classList.remove('absolute', 'z-40', 'h-full');
-        overlay.classList.add('hidden');
-		} else {
-        // Mở
-        sidebar.classList.remove('hidden');
-        sidebar.classList.add('absolute', 'z-40', 'h-full');
-        overlay.classList.remove('hidden');
-			}
-		});
-		
-		// TỰ ĐỘNG ĐĂNG NHẬP NẾU CÓ LƯU MÃ PIN TRƯỚC ĐÓ
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isOpen = !sidebar.classList.contains('hidden');
+            if (isOpen) {
+                // Đóng
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('absolute', 'z-40', 'h-full');
+                if(overlay) overlay.classList.add('hidden');
+            } else {
+                // Mở
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('absolute', 'z-40', 'h-full');
+                if(overlay) overlay.classList.remove('hidden');
+            }
+        });
+
+        // 2. TỰ ĐỘNG ĐĂNG NHẬP
         window.addEventListener('DOMContentLoaded', (event) => {
             const savedPin = localStorage.getItem('savedPin');
             if (savedPin) {
                 document.getElementById('login-pin').value = savedPin;
                 document.getElementById('remember-pin').checked = true;
-                app.login(); // Tự động gọi hàm đăng nhập
+                app.login(); 
             }
         });
-		
+
     </script>
 </body>
 </html>
