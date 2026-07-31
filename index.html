@@ -162,11 +162,17 @@
                 <!-- M3: HỌC PHÍ -->
                 <!-- ============================================== -->
                 <div id="view-m3" class="view-section hidden">
-                    <div class="flex items-center justify-between mb-6 border-b pb-4 border-gray-200">
-                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2"><i class="fas fa-hand-holding-dollar text-purple-600"></i> Học Phí</h2>
-                        <div class="flex gap-2 items-center border-2 border-purple-800 p-1 rounded">
-                            <span class="px-2 font-bold text-purple-800">Tháng:</span>
-                            <input type="month" id="m3-month" class="p-1 outline-none font-bold text-gray-700" onchange="app.renderM3()">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 border-b pb-4 border-gray-200 gap-4">
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2"><i class="fas fa-hand-holding-dollar text-purple-600"></i> Theo dõi Đóng Học Phí</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <!-- Ô CHỌN LỚP MỚI THÊM -->
+                            <div class="flex gap-2 items-center border-2 border-purple-800 p-1 rounded bg-white">
+                                <select id="m3-class" class="p-1 outline-none font-bold text-purple-800 bg-transparent border-r-2 border-purple-200" onchange="app.renderM3()">
+                                    <option value="ALL">-- Tất cả các lớp --</option>
+                                </select>
+                                <span class="px-2 font-bold text-purple-800">Tháng:</span>
+                                <input type="month" id="m3-month" class="p-1 outline-none font-bold text-gray-700 bg-transparent" onchange="app.renderM3()">
+                            </div>
                         </div>
                     </div>
 
@@ -519,6 +525,9 @@
                 const opts = '<option value="">-- Chọn Lớp --</option>' + this.data.LopHoc.map(lop => `<option value="${lop.MaLop}">${lop.TenLop}</option>`).join('');
                 document.getElementById('m2-class').innerHTML = opts;
                 document.getElementById('m4-class').innerHTML = opts;
+				// NẠP DANH SÁCH LỚP CHO MENU 3 (HỌC PHÍ)
+                const optsM3 = '<option value="ALL">-- Tất cả các lớp --</option>' + this.data.LopHoc.map(lop => `<option value="${lop.MaLop}">${lop.TenLop}</option>`).join('');
+                document.getElementById('m3-class').innerHTML = optsM3;
             },
 
             // =========================================
@@ -786,15 +795,22 @@
                 const monthStr = document.getElementById('m3-month').value;
                 if(!monthStr) return;
 
+                // 1. ĐỌC LỚP ĐANG ĐƯỢC CHỌN TỪ BỘ LỌC
+                const selectedClass = document.getElementById('m3-class').value;
+
                 const dataThang = this.data.DiemDanh.filter(d => d.NgayHoc.startsWith(monthStr));
                 const tbody = document.getElementById('m3-tbody');
                 tbody.innerHTML = '';
 
                 let tongCanThu = 0; let tongDaThu = 0;
-                let demCanThu = 0; let demDaThu = 0; let demConThieu = 0; // Thêm 3 biến đếm học sinh
+                let demCanThu = 0; let demDaThu = 0; let demConThieu = 0; 
 
                 this.data.HocSinh.forEach(hs => {
-					if (!this.shouldShowStudent(hs, monthStr)) return;
+                    if (!this.shouldShowStudent(hs, monthStr)) return;
+
+                    // 2. LOGIC LỌC LỚP: Nếu học sinh không thuộc lớp đang chọn -> Bỏ qua
+                    if (selectedClass && selectedClass !== "ALL" && hs.MaLop !== selectedClass) return;
+
                     const buoiHocHs = dataThang.filter(d => d.MaHS === hs.MaHS);
                     if(buoiHocHs.length === 0) return;
 
@@ -807,7 +823,7 @@
 
                     const tienHoc = soCaTinhTien * (parseInt(hs.HocPhiBuoi) || 0);
                     tongCanThu += tienHoc;
-                    demCanThu++; // Tăng số học sinh cần thu thêm 1
+                    demCanThu++; 
 
                     const idThanhToan = `${hs.MaHS}_${monthStr}`;
                     const phieuThu = this.data.ThanhToan.find(t => t.ID_ThanhToan === idThanhToan);
@@ -815,9 +831,9 @@
 
                     if(daNop) {
                         tongDaThu += tienHoc;
-                        demDaThu++; // Tăng số học sinh đã nộp thêm 1
+                        demDaThu++; 
                     } else {
-                        demConThieu++; // Tăng số học sinh chưa nộp thêm 1
+                        demConThieu++; 
                     }
 
                     if(this.currentM3Filter === 'chuano' && daNop) return;
@@ -838,8 +854,8 @@
                             </td>
                             <td class="p-3 text-center">
                                 ${!daNop 
-                                    ? `<button onclick="app.xacNhanThuTien('${hs.MaHS}', '${monthStr}', '${hs.TenHS}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-[10px] font-bold shadow"><i class="fas fa-check-double"></i> Xác nhận nộp</button>`
-                                    : `<button onclick="app.xacNhanThuTien('${hs.MaHS}', '${monthStr}', '${hs.TenHS}')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-[10px]"><i class="fas fa-edit"></i> Sửa</button>`}
+                                    ? `<button onclick="app.xacNhanThuTien('${hs.MaHS}', '${monthStr}', '${hs.TenHS.replace(/'/g, "\\'")}')" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-[10px] font-bold shadow"><i class="fas fa-check-double"></i> Xác nhận nộp</button>`
+                                    : `<button onclick="app.xacNhanThuTien('${hs.MaHS}', '${monthStr}', '${hs.TenHS.replace(/'/g, "\\'")}')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-[10px]"><i class="fas fa-edit"></i> Sửa</button>`}
                             </td>
                         </tr>
                     `;
@@ -876,10 +892,9 @@
 
                         if(res.status === 'success') {
                             this.toast('success', 'Đã lưu thanh toán!');
-                            // Cập nhật RAM
                             const idx = this.data.ThanhToan.findIndex(t => t.ID_ThanhToan === dataToSave[0].ID_ThanhToan);
                             if(idx > -1) this.data.ThanhToan[idx] = dataToSave[0]; else this.data.ThanhToan.push(dataToSave[0]);
-                            this.renderM3(); // Tải lại bảng
+                            this.renderM3(); 
                         }
                     }
                 });
